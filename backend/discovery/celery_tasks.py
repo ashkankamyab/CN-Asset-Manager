@@ -37,8 +37,13 @@ def run_discovery_task(job_id):
             job.save()
             return
 
+        def flush_logs():
+            job.log_output = '\n'.join(log_lines)
+            job.save(update_fields=['log_output'])
+
         for account in accounts:
             log_lines.append(f"Starting discovery for {account.account_name} ({account.account_id})")
+            flush_logs()
             try:
                 discoverer = AWSResourceDiscoverer(account)
                 resources = discoverer.discover_all_resources()
@@ -66,9 +71,12 @@ def run_discovery_task(job_id):
                     for err in discoverer.errors:
                         log_lines.append(f"  Warning: {err}")
 
+                flush_logs()
+
             except Exception as e:
                 log_lines.append(f"  ERROR: {e}")
                 logger.error(f"Discovery failed for {account.account_id}: {e}")
+                flush_logs()
 
         job.status = DiscoveryJob.Status.COMPLETED
         job.resources_discovered = total_discovered
