@@ -82,9 +82,13 @@ def run_discovery_task(job_id):
         job.resources_discovered = total_discovered
         job.resources_new = total_new
         job.resources_updated = total_updated
+        log_lines.append('Refreshing account costs...')
         job.log_output = '\n'.join(log_lines)
         job.completed_at = timezone.now()
         job.save()
+
+        # Refresh costs after successful discovery
+        refresh_costs_task.delay()
 
     except Exception as e:
         job.status = DiscoveryJob.Status.FAILED
