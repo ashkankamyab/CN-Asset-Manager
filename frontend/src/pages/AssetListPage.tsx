@@ -40,7 +40,7 @@ function InlineAssetAutocomplete({
   const [results, setResults] = useState<AutocompleteResult[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout>>();
+  const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   const doSearch = useCallback((q: string) => {
@@ -130,7 +130,7 @@ function AssetHoverCard({
   children: React.ReactNode;
 }) {
   const [show, setShow] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout>>();
+  const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   function handleEnter() {
