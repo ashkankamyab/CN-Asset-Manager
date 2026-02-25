@@ -4,10 +4,10 @@ import TopNavbar from '../components/TopNavbar';
 import { useDiscoveryJob } from '../api/discovery';
 
 const STATUS_BADGE: Record<string, string> = {
-  PENDING: 'bg-secondary',
-  RUNNING: 'bg-primary',
-  COMPLETED: 'bg-success',
-  FAILED: 'bg-danger',
+  PENDING: 'badge-status-pending',
+  RUNNING: 'badge-status-running',
+  COMPLETED: 'badge-status-completed',
+  FAILED: 'badge-status-failed',
 };
 
 function formatDate(iso: string | null) {
@@ -143,7 +143,7 @@ export default function DiscoveryJobDetailPage() {
             <div className="card-header d-flex align-items-center gap-2">
               <strong>Log Output</strong>
               {isActive && (
-                <span className="badge bg-danger bg-opacity-75" style={{ animation: 'pulse 1.5s infinite' }}>
+                <span className="badge" style={{ background: '#fef2f2', color: '#991b1b', animation: 'pulse 1.5s infinite' }}>
                   Live
                 </span>
               )}
@@ -152,15 +152,7 @@ export default function DiscoveryJobDetailPage() {
               {job.log_output ? (
                 <pre
                   ref={logRef}
-                  className="mb-0 p-3"
-                  style={{
-                    background: '#1a1d23',
-                    color: '#e9ecef',
-                    maxHeight: 400,
-                    overflow: 'auto',
-                    borderRadius: '0 0 .375rem .375rem',
-                    fontSize: '.85rem',
-                  }}
+                  className="log-terminal mb-0"
                 >
                   {job.log_output}
                 </pre>

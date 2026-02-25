@@ -43,17 +43,17 @@ export default function LoginPage() {
   }
 
   return (
-    <div
-      className="d-flex align-items-center justify-content-center"
-      style={{ minHeight: '100vh', background: '#1a1d23' }}
-    >
-      <div style={{ width: '100%', maxWidth: 420 }}>
+    <div className="login-wrapper">
+      <div style={{ width: '100%', maxWidth: 420, padding: '0 1rem' }}>
         <div className="text-center mb-4">
-          <h2 className="fw-bold text-white mb-1">Cloud Native Asset Manager</h2>
-          <p className="text-secondary small">Sign in to continue</p>
+          <div className="login-brand-icon">
+            <i className="bi bi-shield-check"></i>
+          </div>
+          <h4 className="fw-bold text-white mb-1">Cloud Native Asset Manager</h4>
+          <p style={{ color: '#9ca3af' }} className="small mb-0">Sign in to continue</p>
         </div>
 
-        <div className="card border-0 shadow">
+        <div className="login-card">
           <div className="card-body p-4">
             {error && (
               <div className="alert alert-danger py-2 small">{error}</div>
@@ -61,7 +61,7 @@ export default function LoginPage() {
 
             <form onSubmit={handleSubmit}>
               <div className="mb-3">
-                <label htmlFor="username" className="form-label small fw-semibold">
+                <label htmlFor="username" className="form-label">
                   Username
                 </label>
                 <input
@@ -76,7 +76,7 @@ export default function LoginPage() {
               </div>
               <div className="mb-3">
                 <div className="d-flex justify-content-between align-items-center">
-                  <label htmlFor="password" className="form-label small fw-semibold mb-0">
+                  <label htmlFor="password" className="form-label mb-0">
                     Password
                   </label>
                   <Link to="/forgot-password" className="small" tabIndex={-1}>
@@ -109,9 +109,9 @@ export default function LoginPage() {
             {config?.oidc_enabled && (
               <>
                 <div className="d-flex align-items-center my-3">
-                  <hr className="flex-grow-1" />
-                  <span className="px-3 text-muted small">or</span>
-                  <hr className="flex-grow-1" />
+                  <hr className="flex-grow-1" style={{ borderColor: '#e5e7eb' }} />
+                  <span className="px-3 small" style={{ color: '#9ca3af' }}>or</span>
+                  <hr className="flex-grow-1" style={{ borderColor: '#e5e7eb' }} />
                 </div>
                 <a
                   href={`/oidc/authenticate/?next=${encodeURIComponent(next)}`}

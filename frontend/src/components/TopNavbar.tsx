@@ -52,8 +52,8 @@ export default function TopNavbar({ breadcrumbs }: Props) {
           >
             <i className="bi bi-person-circle me-1"></i>
             {user?.username ?? 'User'}
-            {isAdmin && <span className="badge bg-primary ms-1">Admin</span>}
-            {user?.role === 'readonly' && <span className="badge bg-secondary ms-1">Read Only</span>}
+            {isAdmin && <span className="badge ms-2" style={{ background: '#eef2ff', color: '#4f46e5' }}>Admin</span>}
+            {user?.role === 'readonly' && <span className="badge ms-2" style={{ background: '#f3f4f6', color: '#6b7280' }}>Read Only</span>}
           </button>
           {open && (
             <ul className="dropdown-menu dropdown-menu-end show">

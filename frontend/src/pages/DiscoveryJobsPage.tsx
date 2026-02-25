@@ -6,10 +6,10 @@ import { useAccounts } from '../api/accounts';
 import { useAuth } from '../contexts/AuthContext';
 
 const STATUS_BADGE: Record<string, string> = {
-  PENDING: 'bg-secondary',
-  RUNNING: 'bg-primary',
-  COMPLETED: 'bg-success',
-  FAILED: 'bg-danger',
+  PENDING: 'badge-status-pending',
+  RUNNING: 'badge-status-running',
+  COMPLETED: 'badge-status-completed',
+  FAILED: 'badge-status-failed',
 };
 
 function formatDate(iso: string | null) {

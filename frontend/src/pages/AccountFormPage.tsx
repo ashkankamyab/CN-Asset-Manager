@@ -18,22 +18,27 @@ const ENVIRONMENTS = [
 const AWS_REGION_GROUPS = [
   {
     label: 'North America',
+    accent: 'region-group-na',
     regions: ['us-east-1', 'us-east-2', 'us-west-1', 'us-west-2', 'ca-central-1'],
   },
   {
     label: 'South America',
+    accent: 'region-group-sa',
     regions: ['sa-east-1'],
   },
   {
     label: 'Europe',
+    accent: 'region-group-eu',
     regions: ['eu-central-1', 'eu-west-1', 'eu-west-2', 'eu-west-3', 'eu-north-1'],
   },
   {
     label: 'Africa & Middle East',
+    accent: 'region-group-af',
     regions: ['af-south-1', 'me-south-1'],
   },
   {
     label: 'Asia Pacific',
+    accent: 'region-group-ap',
     regions: ['ap-south-1', 'ap-southeast-1', 'ap-southeast-2', 'ap-northeast-1', 'ap-northeast-2', 'ap-east-1'],
   },
 ];
@@ -149,58 +154,63 @@ export default function AccountFormPage() {
             <div className="card-header"><strong>{title}</strong></div>
             <div className="card-body">
               <form onSubmit={handleSubmit}>
-                <div className="mb-3">
-                  <label className="form-label">Account ID *</label>
-                  <input
-                    type="text"
-                    className={`form-control${errors.account_id ? ' is-invalid' : ''}`}
-                    value={form.account_id}
-                    onChange={(e) => set('account_id', e.target.value)}
-                    placeholder="123456789012"
-                    maxLength={12}
-                    required
-                  />
-                  {errors.account_id && <div className="invalid-feedback">{errors.account_id.join(', ')}</div>}
-                  <div className="form-text">12-digit AWS account ID</div>
-                </div>
-
-                <div className="mb-3">
-                  <label className="form-label">Account Name *</label>
-                  <input
-                    type="text"
-                    className={`form-control${errors.account_name ? ' is-invalid' : ''}`}
-                    value={form.account_name}
-                    onChange={(e) => set('account_name', e.target.value)}
-                    placeholder="my-aws-account"
-                    required
-                  />
-                  {errors.account_name && <div className="invalid-feedback">{errors.account_name.join(', ')}</div>}
-                </div>
-
-                <div className="row mb-3">
-                  <div className="col-md-6">
-                    <label className="form-label">Account Type</label>
-                    <select className="form-select" value={form.account_type} onChange={(e) => set('account_type', e.target.value)}>
-                      {ACCOUNT_TYPES.map((o) => (
-                        <option key={o.value} value={o.value}>{o.label}</option>
-                      ))}
-                    </select>
+                {/* Account Info */}
+                <div className="form-section">
+                  <div className="form-section-title">Account Info</div>
+                  <div className="mb-3">
+                    <label className="form-label">Account ID *</label>
+                    <input
+                      type="text"
+                      className={`form-control${errors.account_id ? ' is-invalid' : ''}`}
+                      value={form.account_id}
+                      onChange={(e) => set('account_id', e.target.value)}
+                      placeholder="123456789012"
+                      maxLength={12}
+                      required
+                    />
+                    {errors.account_id && <div className="invalid-feedback">{errors.account_id.join(', ')}</div>}
+                    <div className="form-text">12-digit AWS account ID</div>
                   </div>
-                  <div className="col-md-6">
-                    <label className="form-label">Environment</label>
-                    <select className="form-select" value={form.environment} onChange={(e) => set('environment', e.target.value)}>
-                      {ENVIRONMENTS.map((o) => (
-                        <option key={o.value} value={o.value}>{o.label}</option>
-                      ))}
-                    </select>
+
+                  <div className="mb-3">
+                    <label className="form-label">Account Name *</label>
+                    <input
+                      type="text"
+                      className={`form-control${errors.account_name ? ' is-invalid' : ''}`}
+                      value={form.account_name}
+                      onChange={(e) => set('account_name', e.target.value)}
+                      placeholder="my-aws-account"
+                      required
+                    />
+                    {errors.account_name && <div className="invalid-feedback">{errors.account_name.join(', ')}</div>}
+                  </div>
+
+                  <div className="row mb-3">
+                    <div className="col-md-6">
+                      <label className="form-label">Account Type</label>
+                      <select className="form-select" value={form.account_type} onChange={(e) => set('account_type', e.target.value)}>
+                        {ACCOUNT_TYPES.map((o) => (
+                          <option key={o.value} value={o.value}>{o.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="col-md-6">
+                      <label className="form-label">Environment</label>
+                      <select className="form-select" value={form.environment} onChange={(e) => set('environment', e.target.value)}>
+                        {ENVIRONMENTS.map((o) => (
+                          <option key={o.value} value={o.value}>{o.label}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                 </div>
 
-                <div className="mb-3">
-                  <label className="form-label">Discovery Regions</label>
+                {/* Discovery Regions */}
+                <div className="form-section">
+                  <div className="form-section-title">Discovery Regions</div>
                   {AWS_REGION_GROUPS.map((group) => (
-                    <div key={group.label} className="mb-2">
-                      <div className="text-muted small fw-semibold mb-1">{group.label}</div>
+                    <div key={group.label} className={`region-group ${group.accent} mb-3`}>
+                      <div className="small fw-semibold mb-1" style={{ color: 'var(--color-text-secondary)' }}>{group.label}</div>
                       <div className="row row-cols-2 row-cols-md-3 g-1">
                         {group.regions.map((region) => (
                           <div className="col" key={region}>
@@ -233,8 +243,10 @@ export default function AccountFormPage() {
                   </div>
                 </div>
 
+                {/* Credentials */}
                 {isManagement && (
-                  <>
+                  <div className="form-section">
+                    <div className="form-section-title">Credentials</div>
                     <div className="mb-3">
                       <label className="form-label">AWS Access Key ID</label>
                       <input
@@ -260,11 +272,12 @@ export default function AccountFormPage() {
                       {errors.aws_secret_access_key && <div className="invalid-feedback">{errors.aws_secret_access_key.join(', ')}</div>}
                       {isEdit && <div className="form-text">Leave blank to keep the existing secret key</div>}
                     </div>
-                  </>
+                  </div>
                 )}
 
                 {!isManagement && (
-                  <>
+                  <div className="form-section">
+                    <div className="form-section-title">Organization</div>
                     <div className="mb-3">
                       <label className="form-label">Management Account</label>
                       <select
@@ -289,18 +302,22 @@ export default function AccountFormPage() {
                         onChange={(e) => set('organization_role_name', e.target.value)}
                       />
                     </div>
-                  </>
+                  </div>
                 )}
 
-                <div className="mb-3 form-check">
-                  <input
-                    type="checkbox"
-                    className="form-check-input"
-                    id="is_active"
-                    checked={form.is_active}
-                    onChange={(e) => set('is_active', e.target.checked)}
-                  />
-                  <label className="form-check-label" htmlFor="is_active">Active</label>
+                {/* Settings */}
+                <div className="form-section">
+                  <div className="form-section-title">Settings</div>
+                  <div className="mb-3 form-check">
+                    <input
+                      type="checkbox"
+                      className="form-check-input"
+                      id="is_active"
+                      checked={form.is_active}
+                      onChange={(e) => set('is_active', e.target.checked)}
+                    />
+                    <label className="form-check-label" htmlFor="is_active">Active</label>
+                  </div>
                 </div>
 
                 <div className="d-flex gap-2">

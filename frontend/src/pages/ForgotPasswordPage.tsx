@@ -21,11 +21,13 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="d-flex align-items-center justify-content-center min-vh-100 bg-light">
-      <div className="card shadow-sm" style={{ maxWidth: 420, width: '100%' }}>
+    <div className="login-wrapper">
+      <div className="login-card" style={{ maxWidth: 420, width: '100%', margin: '0 1rem' }}>
         <div className="card-body p-4">
           <div className="text-center mb-4">
-            <i className="bi bi-shield-check fs-1 text-primary" />
+            <div className="login-brand-icon">
+              <i className="bi bi-shield-check"></i>
+            </div>
             <h5 className="mt-2">Reset Password</h5>
             <p className="text-muted small">
               Enter your email address and we'll send you a link to reset your password.

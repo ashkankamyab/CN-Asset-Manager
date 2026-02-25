@@ -199,9 +199,14 @@ function UsersTab() {
   }
 
   const ROLE_BADGE: Record<string, string> = {
-    superadmin: 'bg-danger',
-    admin: 'bg-primary',
-    readonly: 'bg-secondary',
+    superadmin: '',
+    admin: '',
+    readonly: '',
+  };
+  const ROLE_STYLE: Record<string, React.CSSProperties> = {
+    superadmin: { background: '#fef2f2', color: '#991b1b' },
+    admin: { background: '#eef2ff', color: '#4f46e5' },
+    readonly: { background: '#f3f4f6', color: '#4b5563' },
   };
 
   if (isLoading) {
@@ -240,20 +245,20 @@ function UsersTab() {
                 <td className="fw-medium">{u.username}</td>
                 <td className="small">{u.email || '—'}</td>
                 <td>
-                  <span className={`badge ${ROLE_BADGE[u.role] || 'bg-secondary'}`}>
+                  <span className="badge" style={ROLE_STYLE[u.role] || { background: '#f3f4f6', color: '#4b5563' }}>
                     {u.role}
                   </span>
                 </td>
                 <td>
-                  <span className={`badge ${u.auth_source === 'oidc' ? 'bg-info' : 'bg-dark'}`}>
+                  <span className="badge" style={u.auth_source === 'oidc' ? { background: '#dbeafe', color: '#1e40af' } : { background: '#f3f4f6', color: '#4b5563' }}>
                     {u.auth_source}
                   </span>
                 </td>
                 <td>
                   {u.is_active ? (
-                    <span className="badge bg-success">Active</span>
+                    <span className="badge badge-active">Active</span>
                   ) : (
-                    <span className="badge bg-warning text-dark">Disabled</span>
+                    <span className="badge badge-inactive">Disabled</span>
                   )}
                 </td>
                 <td className="small">
@@ -991,7 +996,7 @@ export default function AdminPage() {
     <>
       <TopNavbar breadcrumbs={[{ label: 'Settings' }]} />
 
-      <ul className="nav nav-tabs mb-3">
+      <ul className="nav nav-tabs mb-4">
         {TABS.map((t) => (
           <li className="nav-item" key={t.key}>
             <button

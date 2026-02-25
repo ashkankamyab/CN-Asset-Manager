@@ -111,7 +111,7 @@ function InlineAssetAutocomplete({
               >
                 <strong>{r.asset_id}</strong> — {r.name}
                 {r.aws_service_type && (
-                  <span className="badge bg-info ms-1">{r.aws_service_type}</span>
+                  <span className="badge ms-1" style={{ background: '#dbeafe', color: '#1e40af' }}>{r.aws_service_type}</span>
                 )}
               </button>
             </li>
@@ -494,7 +494,7 @@ export default function AssetListPage() {
                 <span>
                   <strong className="small">Filters</strong>
                   {activeFilterCount > 0 && (
-                    <span className="badge bg-primary ms-1">{activeFilterCount}</span>
+                    <span className="badge ms-1" style={{ background: '#eef2ff', color: '#4f46e5' }}>{activeFilterCount}</span>
                   )}
                 </span>
                 {activeFilterCount > 0 && (

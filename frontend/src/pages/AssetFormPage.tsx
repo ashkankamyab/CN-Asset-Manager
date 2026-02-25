@@ -60,11 +60,11 @@ function TagInput({
       <label className="form-label">{label}</label>
       <div className="d-flex gap-1 flex-wrap mb-1">
         {values.map((v, i) => (
-          <span key={i} className="badge bg-secondary d-flex align-items-center gap-1">
-            <code className="text-white">{v}</code>
+          <span key={i} className="badge d-flex align-items-center gap-1" style={{ background: '#f3f4f6', color: '#4b5563' }}>
+            <code style={{ color: '#4b5563' }}>{v}</code>
             <button
               type="button"
-              className="btn-close btn-close-white"
+              className="btn-close"
               style={{ fontSize: '0.5rem' }}
               onClick={() => remove(i)}
             />
@@ -176,7 +176,7 @@ function AssetAutocomplete({
               >
                 <strong>{r.asset_id}</strong> — {r.name}
                 {r.aws_service_type && (
-                  <span className="badge bg-info ms-1">{r.aws_service_type}</span>
+                  <span className="badge ms-1" style={{ background: '#dbeafe', color: '#1e40af' }}>{r.aws_service_type}</span>
                 )}
               </button>
             </li>
@@ -352,171 +352,193 @@ export default function AssetFormPage() {
                     </ul>
                   </div>
                 )}
-                <div className="mb-3">
-                  <label className="form-label">Name *</label>
-                  <input
-                    type="text"
-                    className={`form-control${errors.name ? ' is-invalid' : ''}`}
-                    value={form.name as string}
-                    onChange={(e) => set('name', e.target.value)}
-                    required
-                  />
-                  {errors.name && <div className="invalid-feedback">{errors.name.join(', ')}</div>}
-                </div>
 
-                <div className="row mb-3">
-                  <div className="col-md-6">
-                    <label className="form-label">Asset Type</label>
-                    <select className="form-select" value={form.asset_type as string} onChange={(e) => set('asset_type', e.target.value)}>
-                      {filterOpts?.asset_types.map((o) => (
-                        <option key={o.value} value={o.value}>{o.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="col-md-6">
-                    <label className="form-label">AWS Service Type</label>
-                    <select className="form-select" value={form.aws_service_type as string} onChange={(e) => set('aws_service_type', e.target.value)}>
-                      <option value="">---</option>
-                      {filterOpts?.aws_service_types.map((o) => (
-                        <option key={o.value} value={o.value}>{o.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div className="row mb-3">
-                  <div className="col-md-4">
-                    <label className="form-label">Status</label>
-                    <select className="form-select" value={form.status as string} onChange={(e) => set('status', e.target.value)}>
-                      {filterOpts?.statuses.map((o) => (
-                        <option key={o.value} value={o.value}>{o.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="col-md-4">
-                    <label className="form-label">Criticality</label>
-                    <select className="form-select" value={form.criticality as string} onChange={(e) => set('criticality', e.target.value)}>
-                      {filterOpts?.criticalities.map((o) => (
-                        <option key={o.value} value={o.value}>{o.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="col-md-4">
-                    <label className="form-label">Data Classification</label>
-                    <select className="form-select" value={form.data_classification as string} onChange={(e) => set('data_classification', e.target.value)}>
-                      {filterOpts?.data_classifications.map((o) => (
-                        <option key={o.value} value={o.value}>{o.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div className="row mb-3">
-                  <div className="col-md-6">
-                    <label className="form-label">AWS Account</label>
-                    <select className="form-select" value={form.aws_account as string} onChange={(e) => set('aws_account', e.target.value)}>
-                      <option value="">---</option>
-                      {accountsData?.results.map((a) => (
-                        <option key={a.id} value={a.id}>{a.account_name}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="col-md-6">
-                    <label className="form-label">AWS Region</label>
+                {/* Basic Info */}
+                <div className="form-section">
+                  <div className="form-section-title">Basic Info</div>
+                  <div className="mb-3">
+                    <label className="form-label">Name *</label>
                     <input
                       type="text"
-                      className="form-control"
-                      value={form.aws_region as string}
-                      onChange={(e) => set('aws_region', e.target.value)}
-                      placeholder="e.g. eu-central-1"
+                      className={`form-control${errors.name ? ' is-invalid' : ''}`}
+                      value={form.name as string}
+                      onChange={(e) => set('name', e.target.value)}
+                      required
                     />
+                    {errors.name && <div className="invalid-feedback">{errors.name.join(', ')}</div>}
+                  </div>
+
+                  <div className="row mb-3">
+                    <div className="col-md-6">
+                      <label className="form-label">Asset Type</label>
+                      <select className="form-select" value={form.asset_type as string} onChange={(e) => set('asset_type', e.target.value)}>
+                        {filterOpts?.asset_types.map((o) => (
+                          <option key={o.value} value={o.value}>{o.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="col-md-6">
+                      <label className="form-label">AWS Service Type</label>
+                      <select className="form-select" value={form.aws_service_type as string} onChange={(e) => set('aws_service_type', e.target.value)}>
+                        <option value="">---</option>
+                        {filterOpts?.aws_service_types.map((o) => (
+                          <option key={o.value} value={o.value}>{o.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="row mb-3">
+                    <div className="col-md-4">
+                      <label className="form-label">Status</label>
+                      <select className="form-select" value={form.status as string} onChange={(e) => set('status', e.target.value)}>
+                        {filterOpts?.statuses.map((o) => (
+                          <option key={o.value} value={o.value}>{o.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="col-md-4">
+                      <label className="form-label">Criticality</label>
+                      <select className="form-select" value={form.criticality as string} onChange={(e) => set('criticality', e.target.value)}>
+                        {filterOpts?.criticalities.map((o) => (
+                          <option key={o.value} value={o.value}>{o.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="col-md-4">
+                      <label className="form-label">Data Classification</label>
+                      <select className="form-select" value={form.data_classification as string} onChange={(e) => set('data_classification', e.target.value)}>
+                        {filterOpts?.data_classifications.map((o) => (
+                          <option key={o.value} value={o.value}>{o.label}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                 </div>
 
-                <div className="row mb-3">
-                  <div className="col-md-6">
-                    <label className="form-label">Resource ID</label>
-                    <input type="text" className="form-control" value={form.aws_resource_id as string} onChange={(e) => set('aws_resource_id', e.target.value)} />
+                {/* AWS Details */}
+                <div className="form-section">
+                  <div className="form-section-title">AWS Details</div>
+                  <div className="row mb-3">
+                    <div className="col-md-6">
+                      <label className="form-label">AWS Account</label>
+                      <select className="form-select" value={form.aws_account as string} onChange={(e) => set('aws_account', e.target.value)}>
+                        <option value="">---</option>
+                        {accountsData?.results.map((a) => (
+                          <option key={a.id} value={a.id}>{a.account_name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="col-md-6">
+                      <label className="form-label">AWS Region</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={form.aws_region as string}
+                        onChange={(e) => set('aws_region', e.target.value)}
+                        placeholder="e.g. eu-central-1"
+                      />
+                    </div>
                   </div>
-                  <div className="col-md-6">
-                    <label className="form-label">Resource ARN</label>
-                    <input type="text" className="form-control" value={form.aws_resource_arn as string} onChange={(e) => set('aws_resource_arn', e.target.value)} />
+
+                  <div className="row mb-3">
+                    <div className="col-md-6">
+                      <label className="form-label">Resource ID</label>
+                      <input type="text" className="form-control" value={form.aws_resource_id as string} onChange={(e) => set('aws_resource_id', e.target.value)} />
+                    </div>
+                    <div className="col-md-6">
+                      <label className="form-label">Resource ARN</label>
+                      <input type="text" className="form-control" value={form.aws_resource_arn as string} onChange={(e) => set('aws_resource_arn', e.target.value)} />
+                    </div>
                   </div>
                 </div>
 
-                <div className="row mb-3">
-                  <div className="col-md-6">
-                    <label className="form-label">Owner</label>
-                    <input type="text" className="form-control" value={form.owner as string} onChange={(e) => set('owner', e.target.value)} />
+                {/* Ownership */}
+                <div className="form-section">
+                  <div className="form-section-title">Ownership</div>
+                  <div className="row mb-3">
+                    <div className="col-md-6">
+                      <label className="form-label">Owner</label>
+                      <input type="text" className="form-control" value={form.owner as string} onChange={(e) => set('owner', e.target.value)} />
+                    </div>
+                    <div className="col-md-6">
+                      <label className="form-label">Vendor</label>
+                      <input type="text" className="form-control" value={form.vendor as string} onChange={(e) => set('vendor', e.target.value)} />
+                    </div>
                   </div>
-                  <div className="col-md-6">
-                    <label className="form-label">Vendor</label>
-                    <input type="text" className="form-control" value={form.vendor as string} onChange={(e) => set('vendor', e.target.value)} />
+
+                  <div className="row mb-3">
+                    <div className="col-md-6">
+                      <label className="form-label">URL</label>
+                      <input type="text" className={`form-control${errors.url ? ' is-invalid' : ''}`} value={form.url as string} onChange={(e) => set('url', e.target.value)} />
+                      {errors.url && <div className="invalid-feedback">{errors.url.join(', ')}</div>}
+                    </div>
+                    <div className="col-md-6">
+                      <label className="form-label">Version</label>
+                      <input type="text" className="form-control" value={form.version as string} onChange={(e) => set('version', e.target.value)} />
+                    </div>
                   </div>
                 </div>
 
-                <div className="row mb-3">
-                  <div className="col-md-6">
-                    <label className="form-label">URL</label>
-                    <input type="text" className={`form-control${errors.url ? ' is-invalid' : ''}`} value={form.url as string} onChange={(e) => set('url', e.target.value)} />
-                    {errors.url && <div className="invalid-feedback">{errors.url.join(', ')}</div>}
-                  </div>
-                  <div className="col-md-6">
-                    <label className="form-label">Version</label>
-                    <input type="text" className="form-control" value={form.version as string} onChange={(e) => set('version', e.target.value)} />
-                  </div>
-                </div>
-
-                {/* Network: IP Addresses & DNS Names */}
-                <hr />
-                <h6>Network</h6>
-                <div className="row">
-                  <div className="col-md-6">
-                    <TagInput
-                      label="IP Addresses"
-                      placeholder="e.g. 10.0.1.5"
-                      values={form.ip_addresses as string[]}
-                      onChange={(v) => set('ip_addresses', v)}
-                      error={errors.ip_addresses}
-                    />
-                  </div>
-                  <div className="col-md-6">
-                    <TagInput
-                      label="DNS Names"
-                      placeholder="e.g. app.example.com"
-                      values={form.dns_names as string[]}
-                      onChange={(v) => set('dns_names', v)}
-                      error={errors.dns_names}
-                    />
+                {/* Network */}
+                <div className="form-section">
+                  <div className="form-section-title">Network</div>
+                  <div className="row">
+                    <div className="col-md-6">
+                      <TagInput
+                        label="IP Addresses"
+                        placeholder="e.g. 10.0.1.5"
+                        values={form.ip_addresses as string[]}
+                        onChange={(v) => set('ip_addresses', v)}
+                        error={errors.ip_addresses}
+                      />
+                    </div>
+                    <div className="col-md-6">
+                      <TagInput
+                        label="DNS Names"
+                        placeholder="e.g. app.example.com"
+                        values={form.dns_names as string[]}
+                        onChange={(v) => set('dns_names', v)}
+                        error={errors.dns_names}
+                      />
+                    </div>
                   </div>
                 </div>
 
-                <div className="mb-3">
-                  <label className="form-label">Description</label>
-                  <textarea className="form-control" rows={3} value={form.description as string} onChange={(e) => set('description', e.target.value)} />
+                {/* Details */}
+                <div className="form-section">
+                  <div className="form-section-title">Details</div>
+                  <div className="mb-3">
+                    <label className="form-label">Description</label>
+                    <textarea className="form-control" rows={3} value={form.description as string} onChange={(e) => set('description', e.target.value)} />
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">Notes</label>
+                    <textarea className="form-control" rows={3} value={form.notes as string} onChange={(e) => set('notes', e.target.value)} />
+                  </div>
                 </div>
 
-                <div className="mb-3">
-                  <label className="form-label">Notes</label>
-                  <textarea className="form-control" rows={3} value={form.notes as string} onChange={(e) => set('notes', e.target.value)} />
-                </div>
-
-                <div className="mb-3">
-                  <div className="form-check form-check-inline">
-                    <input className="form-check-input" type="checkbox" checked={form.gdpr_relevant as boolean} onChange={(e) => set('gdpr_relevant', e.target.checked)} id="gdpr" />
-                    <label className="form-check-label" htmlFor="gdpr">GDPR Relevant</label>
-                  </div>
-                  <div className="form-check form-check-inline">
-                    <input className="form-check-input" type="checkbox" checked={form.contains_personal_data as boolean} onChange={(e) => set('contains_personal_data', e.target.checked)} id="personal" />
-                    <label className="form-check-label" htmlFor="personal">Contains Personal Data</label>
-                  </div>
-                  <div className="form-check form-check-inline">
-                    <input className="form-check-input" type="checkbox" checked={form.backup_enabled as boolean} onChange={(e) => set('backup_enabled', e.target.checked)} id="backup" />
-                    <label className="form-check-label" htmlFor="backup">Backup Enabled</label>
-                  </div>
-                  <div className="form-check form-check-inline">
-                    <input className="form-check-input" type="checkbox" checked={form.monitoring_enabled as boolean} onChange={(e) => set('monitoring_enabled', e.target.checked)} id="monitoring" />
-                    <label className="form-check-label" htmlFor="monitoring">Monitoring Enabled</label>
+                {/* Compliance */}
+                <div className="form-section">
+                  <div className="form-section-title">Compliance</div>
+                  <div className="mb-3">
+                    <div className="form-check form-check-inline">
+                      <input className="form-check-input" type="checkbox" checked={form.gdpr_relevant as boolean} onChange={(e) => set('gdpr_relevant', e.target.checked)} id="gdpr" />
+                      <label className="form-check-label" htmlFor="gdpr">GDPR Relevant</label>
+                    </div>
+                    <div className="form-check form-check-inline">
+                      <input className="form-check-input" type="checkbox" checked={form.contains_personal_data as boolean} onChange={(e) => set('contains_personal_data', e.target.checked)} id="personal" />
+                      <label className="form-check-label" htmlFor="personal">Contains Personal Data</label>
+                    </div>
+                    <div className="form-check form-check-inline">
+                      <input className="form-check-input" type="checkbox" checked={form.backup_enabled as boolean} onChange={(e) => set('backup_enabled', e.target.checked)} id="backup" />
+                      <label className="form-check-label" htmlFor="backup">Backup Enabled</label>
+                    </div>
+                    <div className="form-check form-check-inline">
+                      <input className="form-check-input" type="checkbox" checked={form.monitoring_enabled as boolean} onChange={(e) => set('monitoring_enabled', e.target.checked)} id="monitoring" />
+                      <label className="form-check-label" htmlFor="monitoring">Monitoring Enabled</label>
+                    </div>
                   </div>
                 </div>
 
@@ -551,7 +573,7 @@ export default function AssetFormPage() {
                     <tbody>
                       {existing.outgoing_relationships.map((r) => (
                         <tr key={r.id}>
-                          <td><span className="badge bg-info">{r.relationship_type}</span></td>
+                          <td><span className="badge" style={{ background: '#dbeafe', color: '#1e40af' }}>{r.relationship_type}</span></td>
                           <td><strong>{r.related_asset_id}</strong> — {r.related_asset_name}</td>
                           <td className="small">{r.description || '—'}</td>
                           <td>

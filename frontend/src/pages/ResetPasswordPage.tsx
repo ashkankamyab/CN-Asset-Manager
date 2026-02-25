@@ -20,10 +20,10 @@ export default function ResetPasswordPage() {
 
   if (!uid || !token) {
     return (
-      <div className="d-flex align-items-center justify-content-center min-vh-100 bg-light">
-        <div className="card shadow-sm" style={{ maxWidth: 420, width: '100%' }}>
+      <div className="login-wrapper">
+        <div className="login-card" style={{ maxWidth: 420, width: '100%', margin: '0 1rem' }}>
           <div className="card-body p-4 text-center">
-            <i className="bi bi-exclamation-triangle fs-1 text-warning" />
+            <i className="bi bi-exclamation-triangle fs-1" style={{ color: '#f59e0b' }} />
             <h5 className="mt-2">Invalid Reset Link</h5>
             <p className="text-muted small">
               This password reset link is invalid or has expired.
@@ -57,11 +57,13 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="d-flex align-items-center justify-content-center min-vh-100 bg-light">
-      <div className="card shadow-sm" style={{ maxWidth: 420, width: '100%' }}>
+    <div className="login-wrapper">
+      <div className="login-card" style={{ maxWidth: 420, width: '100%', margin: '0 1rem' }}>
         <div className="card-body p-4">
           <div className="text-center mb-4">
-            <i className="bi bi-shield-check fs-1 text-primary" />
+            <div className="login-brand-icon">
+              <i className="bi bi-shield-check"></i>
+            </div>
             <h5 className="mt-2">Set New Password</h5>
           </div>
 

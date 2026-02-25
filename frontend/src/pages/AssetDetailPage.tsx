@@ -18,7 +18,10 @@ const STATUS_BADGE: Record<string, string> = {
 
 function BoolBadge({ value, label }: { value: boolean; label: string }) {
   return (
-    <span className={`badge ${value ? 'bg-success' : 'bg-secondary'} me-1`}>
+    <span
+      className="badge me-1"
+      style={value ? { background: '#f0fdf4', color: '#166534' } : { background: '#f3f4f6', color: '#6b7280' }}
+    >
       {value ? 'Yes' : 'No'} — {label}
     </span>
   );
@@ -196,16 +199,13 @@ export default function AssetDetailPage() {
             <div className="card-header"><strong>Tags</strong></div>
             <div className="card-body">
               {Object.keys(asset.tags).length > 0 ? (
-                <table className="table table-sm mb-0">
-                  <tbody>
-                    {Object.entries(asset.tags).map(([k, v]) => (
-                      <tr key={k}>
-                        <th>{k}</th>
-                        <td>{v}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <div className="d-flex flex-wrap gap-2">
+                  {Object.entries(asset.tags).map(([k, v]) => (
+                    <span key={k} className="badge" style={{ background: '#f3f4f6', color: '#4b5563', fontWeight: 500 }}>
+                      {k}: {v}
+                    </span>
+                  ))}
+                </div>
               ) : (
                 <p className="text-muted small mb-0">No tags.</p>
               )}
@@ -242,7 +242,7 @@ export default function AssetDetailPage() {
                   <tbody>
                     {asset.outgoing_relationships.map((r) => (
                       <tr key={r.id}>
-                        <td><span className="badge bg-info">{r.relationship_type}</span></td>
+                        <td><span className="badge" style={{ background: '#dbeafe', color: '#1e40af' }}>{r.relationship_type}</span></td>
                         <td><Link to={`/assets/${r.related_asset_pk}`}>{r.related_asset_id} — {r.related_asset_name}</Link></td>
                         <td>{r.description || '—'}</td>
                       </tr>
@@ -268,7 +268,7 @@ export default function AssetDetailPage() {
                   <tbody>
                     {asset.incoming_relationships.map((r) => (
                       <tr key={r.id}>
-                        <td><span className="badge bg-info">{r.relationship_type}</span></td>
+                        <td><span className="badge" style={{ background: '#dbeafe', color: '#1e40af' }}>{r.relationship_type}</span></td>
                         <td><Link to={`/assets/${r.related_asset_pk}`}>{r.related_asset_id} — {r.related_asset_name}</Link></td>
                         <td>{r.description || '—'}</td>
                       </tr>

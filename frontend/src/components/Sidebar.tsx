@@ -18,7 +18,8 @@ export default function Sidebar() {
         <i className="bi bi-shield-check"></i> Cloud Native Asset Manager
         <small>Compliance &amp; Inventory</small>
       </div>
-      <hr className="mx-3 my-1" style={{ borderColor: '#333' }} />
+      <hr className="sidebar-divider" />
+      <div className="sidebar-nav-label">Navigation</div>
       <ul className="nav flex-column flex-grow-1">
         {links.map((link) => (
           <li className="nav-item" key={link.to}>
@@ -35,7 +36,7 @@ export default function Sidebar() {
         ))}
       </ul>
       <div className="p-3">
-        <small className="text-muted">v1.0.0</small>
+        <small className="text-muted" style={{ fontSize: '0.7rem', color: '#4b5563' }}>v1.0.0</small>
       </div>
     </nav>
   );
