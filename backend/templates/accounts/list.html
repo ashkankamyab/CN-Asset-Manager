@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}AWS Accounts - Cloud Native Asset Manager{% endblock %}
+
+{% block breadcrumbs %}
+<li class="breadcrumb-item"><a href="{% url 'dashboard:index' %}">Dashboard</a></li>
+<li class="breadcrumb-item active">AWS Accounts</li>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h4 class="mb-0">AWS Accounts</h4>
+  <a href="{% url 'accounts:add' %}" class="btn btn-sm btn-primary">
+    <i class="bi bi-plus-lg me-1"></i>Add Account
+  </a>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body p-0">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Account Name</th>
+          <th>Account ID</th>
+          <th>Type</th>
+          <th>Environment</th>
+          <th>Status</th>
+          <th>Last Discovery</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for account in accounts %}
+        <tr>
+          <td><strong>{{ account.account_name }}</strong></td>
+          <td><code>{{ account.account_id }}</code></td>
+          <td><span class="badge {% if account.account_type == 'ROOT' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">{{ account.get_account_type_display }}</span></td>
+          <td><span class="badge bg-info">{{ account.get_environment_display }}</span></td>
+          <td>
+            {% if account.is_active %}
+              <span class="badge bg-success">Active</span>
+            {% else %}
+              <span class="badge bg-danger">Inactive</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if account.last_discovery_at %}
+              {{ account.last_discovery_at|timesince }} ago
+            {% else %}
+              <span class="text-muted">Never</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="d-flex gap-1">
+              <a href="{% url 'accounts:edit' account.pk %}" class="btn btn-sm btn-outline-primary" title="Edit">
+                <i class="bi bi-pencil"></i>
+              </a>
+              <button class="btn btn-sm btn-outline-success test-conn-btn"
+                data-url="{% url 'accounts:test' account.pk %}"
+                title="Test Connection">
+                <i class="bi bi-plug"></i>
+              </button>
+              <form method="post" action="{% url 'discovery:trigger' %}" class="d-inline">
+                {% csrf_token %}
+                <input type="hidden" name="account_id" value="{{ account.pk }}">
+                <button type="submit" class="btn btn-sm btn-outline-info" title="Run Discovery">
+                  <i class="bi bi-arrow-repeat"></i>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" class="text-center text-muted py-4">
+            No accounts configured. <a href="{% url 'accounts:add' %}">Add your first account</a>.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Connection test result modal -->
+<div class="modal fade" id="testResultModal" tabindex="-1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h6 class="modal-title">Connection Test</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center" id="testResultBody">
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.test-conn-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    const url = this.dataset.url;
+    const modal = new bootstrap.Modal(document.getElementById('testResultModal'));
+    const body = document.getElementById('testResultBody');
+    body.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Testing...</span></div>';
+    modal.show();
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    fetch(url, { method: 'POST', headers: { 'X-CSRFToken': csrfToken } })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          body.innerHTML = '<i class="bi bi-check-circle text-success fs-1"></i><p class="mt-2">' + data.message + '</p>';
+        } else {
+          body.innerHTML = '<i class="bi bi-x-circle text-danger fs-1"></i><p class="mt-2">' + data.message + '</p>';
+        }
+      })
+      .catch(err => {
+        body.innerHTML = '<i class="bi bi-x-circle text-danger fs-1"></i><p class="mt-2">Request failed</p>';
+      });
+  });
+});
+</script>
+{% endblock %}

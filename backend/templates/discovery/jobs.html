@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Discovery Jobs - Cloud Native Asset Manager{% endblock %}
+
+{% block breadcrumbs %}
+<li class="breadcrumb-item"><a href="{% url 'dashboard:index' %}">Dashboard</a></li>
+<li class="breadcrumb-item active">Discovery Jobs</li>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h4 class="mb-0">Discovery Jobs</h4>
+  <div class="d-flex gap-2">
+    <form method="post" action="{% url 'discovery:trigger' %}" class="d-flex gap-2">
+      {% csrf_token %}
+      <select name="account_id" class="form-select form-select-sm" style="width:auto">
+        <option value="">All Accounts</option>
+        {% for account in accounts %}
+        <option value="{{ account.pk }}">{{ account.account_name }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn btn-sm btn-primary">
+        <i class="bi bi-arrow-repeat me-1"></i>Start Discovery
+      </button>
+    </form>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body p-0">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Job ID</th>
+          <th>Account</th>
+          <th>Status</th>
+          <th>Discovered</th>
+          <th>New</th>
+          <th>Updated</th>
+          <th>Started</th>
+          <th>Duration</th>
+          <th>Triggered By</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for job in jobs %}
+        <tr>
+          <td><a href="{% url 'discovery:job_detail' job.pk %}"><code>{{ job.id.hex|truncatechars:10 }}</code></a></td>
+          <td>{{ job.aws_account.account_name|default:"All Accounts" }}</td>
+          <td>
+            <span class="badge
+              {% if job.status == 'COMPLETED' %}bg-success
+              {% elif job.status == 'RUNNING' %}bg-primary
+              {% elif job.status == 'FAILED' %}bg-danger
+              {% else %}bg-secondary{% endif %}">
+              {% if job.status == 'RUNNING' %}<span class="spinner-border spinner-border-sm me-1" role="status"></span>{% endif %}
+              {{ job.get_status_display }}
+            </span>
+          </td>
+          <td>{{ job.resources_discovered }}</td>
+          <td>{{ job.resources_new }}</td>
+          <td>{{ job.resources_updated }}</td>
+          <td>{% if job.started_at %}{{ job.started_at }}{% endif %}</td>
+          <td>{% if job.duration %}{{ job.duration }}{% elif job.status == 'RUNNING' %}In progress...{% endif %}</td>
+          <td>{{ job.triggered_by|default:"-" }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="9" class="text-center text-muted py-4">
+            No discovery jobs yet. Click "Start Discovery" to begin.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if is_paginated %}
+<nav class="mt-3">
+  <ul class="pagination justify-content-center">
+    {% if page_obj.has_previous %}
+    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+    {% endif %}
+    {% for num in page_obj.paginator.page_range %}
+      {% if num == page_obj.number %}
+      <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+      {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
+      <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+      {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}
+    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

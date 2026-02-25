@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}{{ asset.asset_id }} - Cloud Native Asset Manager{% endblock %}
+
+{% block breadcrumbs %}
+<li class="breadcrumb-item"><a href="{% url 'dashboard:index' %}">Dashboard</a></li>
+<li class="breadcrumb-item"><a href="{% url 'assets:list' %}">Assets</a></li>
+<li class="breadcrumb-item active">{{ asset.asset_id }}</li>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h4 class="mb-1">{{ asset.name }}</h4>
+    <span class="text-muted">{{ asset.asset_id }}</span>
+    <span class="badge badge-{{ asset.criticality|lower }} ms-2">{{ asset.criticality }}</span>
+    <span class="badge badge-{{ asset.status|lower }} ms-1">{{ asset.get_status_display }}</span>
+    {% if asset.is_manually_added %}<span class="badge bg-info ms-1">Manually Added</span>{% endif %}
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'assets:edit' asset.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil me-1"></i>Edit</a>
+    <form method="post" action="{% url 'assets:delete' asset.pk %}" onsubmit="return confirm('Decommission this asset?')">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash me-1"></i>Decommission</button>
+    </form>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- General Information -->
+  <div class="col-lg-6">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white"><h6 class="mb-0">General Information</h6></div>
+      <div class="card-body">
+        <table class="table table-sm table-borderless">
+          <tr><th class="text-muted" style="width:40%">Type</th><td>{{ asset.get_asset_type_display }}</td></tr>
+          <tr><th class="text-muted">AWS Service</th><td>{{ asset.get_aws_service_type_display|default:"-" }}</td></tr>
+          <tr><th class="text-muted">Category</th><td>{{ asset.category|default:"-" }}</td></tr>
+          <tr><th class="text-muted">Owner</th><td>{{ asset.owner|default:"-" }}</td></tr>
+          <tr><th class="text-muted">Vendor</th><td>{{ asset.vendor|default:"-" }}</td></tr>
+          <tr><th class="text-muted">Version</th><td>{{ asset.version|default:"-" }}</td></tr>
+          {% if asset.url %}<tr><th class="text-muted">URL</th><td><a href="{{ asset.url }}" target="_blank">{{ asset.url|truncatechars:50 }}</a></td></tr>{% endif %}
+          <tr><th class="text-muted">Description</th><td>{{ asset.description|default:"-"|linebreaksbr }}</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- AWS Details -->
+  <div class="col-lg-6">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white"><h6 class="mb-0">AWS Details</h6></div>
+      <div class="card-body">
+        <table class="table table-sm table-borderless">
+          <tr><th class="text-muted" style="width:40%">Account</th><td>{{ asset.aws_account|default:"-" }}</td></tr>
+          <tr><th class="text-muted">Region</th><td>{{ asset.aws_region|default:"-" }}</td></tr>
+          <tr><th class="text-muted">Resource ID</th><td><code>{{ asset.aws_resource_id|default:"-" }}</code></td></tr>
+          <tr><th class="text-muted">ARN</th><td><code style="font-size:.75rem; word-break:break-all;">{{ asset.aws_resource_arn|default:"-" }}</code></td></tr>
+          <tr><th class="text-muted">Discovered</th><td>{% if asset.discovered_at %}{{ asset.discovered_at }}{% else %}-{% endif %}</td></tr>
+          <tr><th class="text-muted">Last Seen</th><td>{% if asset.last_seen_at %}{{ asset.last_seen_at|timesince }} ago{% else %}-{% endif %}</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Compliance -->
+  <div class="col-lg-6">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white"><h6 class="mb-0">Compliance & Security</h6></div>
+      <div class="card-body">
+        <table class="table table-sm table-borderless">
+          <tr><th class="text-muted" style="width:40%">Data Classification</th><td><span class="badge bg-secondary">{{ asset.get_data_classification_display }}</span></td></tr>
+          <tr><th class="text-muted">GDPR Relevant</th><td>{% if asset.gdpr_relevant %}<i class="bi bi-check-circle text-success"></i> Yes{% else %}<i class="bi bi-x-circle text-muted"></i> No{% endif %}</td></tr>
+          <tr><th class="text-muted">Personal Data</th><td>{% if asset.contains_personal_data %}<i class="bi bi-check-circle text-warning"></i> Yes{% else %}<i class="bi bi-x-circle text-muted"></i> No{% endif %}</td></tr>
+          <tr><th class="text-muted">Backup Enabled</th><td>{% if asset.backup_enabled %}<i class="bi bi-check-circle text-success"></i> Yes{% else %}<i class="bi bi-x-circle text-muted"></i> No{% endif %}</td></tr>
+          <tr><th class="text-muted">Monitoring Enabled</th><td>{% if asset.monitoring_enabled %}<i class="bi bi-check-circle text-success"></i> Yes{% else %}<i class="bi bi-x-circle text-muted"></i> No{% endif %}</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Network -->
+  <div class="col-lg-6">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white"><h6 class="mb-0">Network</h6></div>
+      <div class="card-body">
+        <h6 class="small text-muted">IP Addresses</h6>
+        {% if asset.ip_addresses %}
+          {% for ip in asset.ip_addresses %}<code class="me-2">{{ ip }}</code>{% endfor %}
+        {% else %}<span class="text-muted">None</span>{% endif %}
+        <hr>
+        <h6 class="small text-muted">DNS Names</h6>
+        {% if asset.dns_names %}
+          {% for dns in asset.dns_names %}<code class="d-block mb-1" style="word-break:break-all;">{{ dns }}</code>{% endfor %}
+        {% else %}<span class="text-muted">None</span>{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Tags -->
+  <div class="col-lg-6">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white"><h6 class="mb-0">AWS Tags</h6></div>
+      <div class="card-body">
+        {% if asset.tags %}
+          {% for key, value in asset.tags.items %}
+          <span class="badge bg-light text-dark border me-1 mb-1">{{ key }}: {{ value }}</span>
+          {% endfor %}
+        {% else %}
+          <span class="text-muted">No tags</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Metadata -->
+  <div class="col-lg-6">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white"><h6 class="mb-0">Metadata</h6></div>
+      <div class="card-body">
+        {% if asset.metadata %}
+        <pre class="bg-light p-3 rounded" style="max-height:300px; overflow:auto; font-size:.8rem;">{{ asset.metadata|pprint }}</pre>
+        {% else %}
+          <span class="text-muted">No metadata</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Relationships -->
+  {% if outgoing or incoming %}
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white"><h6 class="mb-0">Relationships</h6></div>
+      <div class="card-body">
+        {% if outgoing %}
+        <h6 class="small text-muted">Outgoing</h6>
+        <ul class="list-unstyled">
+          {% for rel in outgoing %}
+          <li>
+            <span class="badge bg-secondary">{{ rel.get_relationship_type_display }}</span>
+            <a href="{% url 'assets:detail' rel.target_asset.pk %}">{{ rel.target_asset.name }}</a>
+            {% if rel.description %}<small class="text-muted">- {{ rel.description }}</small>{% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+        {% if incoming %}
+        <h6 class="small text-muted mt-3">Incoming</h6>
+        <ul class="list-unstyled">
+          {% for rel in incoming %}
+          <li>
+            <a href="{% url 'assets:detail' rel.source_asset.pk %}">{{ rel.source_asset.name }}</a>
+            <span class="badge bg-secondary">{{ rel.get_relationship_type_display }}</span> this asset
+            {% if rel.description %}<small class="text-muted">- {{ rel.description }}</small>{% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Notes -->
+  {% if asset.notes %}
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white"><h6 class="mb-0">Notes</h6></div>
+      <div class="card-body">{{ asset.notes|linebreaksbr }}</div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

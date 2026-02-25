@@ -1,0 +1,15 @@
+Django>=4.2,<5.0
+djangorestframework>=3.14
+django-cors-headers>=4.3
+django-filter>=23.5
+boto3>=1.28
+botocore>=1.31
+django-environ>=0.11
+openpyxl>=3.1
+django-crispy-forms>=2.0
+crispy-bootstrap5>=0.7
+django-htmx>=1.16
+whitenoise>=6.5
+gunicorn>=21.2
+mozilla-django-oidc>=4.0
+celery[redis]>=5.3

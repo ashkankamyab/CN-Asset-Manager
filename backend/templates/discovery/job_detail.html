@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Job {{ job.id.hex|truncatechars:10 }} - Cloud Native Asset Manager{% endblock %}
+
+{% block breadcrumbs %}
+<li class="breadcrumb-item"><a href="{% url 'dashboard:index' %}">Dashboard</a></li>
+<li class="breadcrumb-item"><a href="{% url 'discovery:jobs' %}">Discovery Jobs</a></li>
+<li class="breadcrumb-item active">{{ job.id.hex|truncatechars:10 }}</li>
+{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white"><h6 class="mb-0">Job Details</h6></div>
+      <div class="card-body">
+        <table class="table table-sm table-borderless">
+          <tr><th class="text-muted" style="width:40%">Job ID</th><td><code>{{ job.id }}</code></td></tr>
+          <tr><th class="text-muted">Account</th><td>{{ job.aws_account|default:"All Accounts" }}</td></tr>
+          <tr>
+            <th class="text-muted">Status</th>
+            <td>
+              <span class="badge
+                {% if job.status == 'COMPLETED' %}bg-success
+                {% elif job.status == 'RUNNING' %}bg-primary
+                {% elif job.status == 'FAILED' %}bg-danger
+                {% else %}bg-secondary{% endif %}">{{ job.get_status_display }}</span>
+            </td>
+          </tr>
+          <tr><th class="text-muted">Started</th><td>{{ job.started_at|default:"-" }}</td></tr>
+          <tr><th class="text-muted">Completed</th><td>{{ job.completed_at|default:"-" }}</td></tr>
+          <tr><th class="text-muted">Duration</th><td>{{ job.duration|default:"-" }}</td></tr>
+          <tr><th class="text-muted">Triggered By</th><td>{{ job.triggered_by|default:"-" }}</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white"><h6 class="mb-0">Results</h6></div>
+      <div class="card-body">
+        <div class="row text-center">
+          <div class="col-4">
+            <div class="fs-3 fw-bold text-primary">{{ job.resources_discovered }}</div>
+            <div class="text-muted small">Discovered</div>
+          </div>
+          <div class="col-4">
+            <div class="fs-3 fw-bold text-success">{{ job.resources_new }}</div>
+            <div class="text-muted small">New</div>
+          </div>
+          <div class="col-4">
+            <div class="fs-3 fw-bold text-info">{{ job.resources_updated }}</div>
+            <div class="text-muted small">Updated</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if job.error_message %}
+  <div class="col-12">
+    <div class="card shadow-sm border-danger">
+      <div class="card-header bg-danger text-white"><h6 class="mb-0">Error</h6></div>
+      <div class="card-body">
+        <pre class="mb-0">{{ job.error_message }}</pre>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if job.log_output %}
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white"><h6 class="mb-0">Log Output</h6></div>
+      <div class="card-body">
+        <pre class="bg-dark text-light p-3 rounded" style="max-height:500px; overflow:auto; font-size:.8rem;">{{ job.log_output }}</pre>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

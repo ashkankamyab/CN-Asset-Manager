@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% if object %}Edit {{ object.asset_id }}{% else %}Add Asset{% endif %} - Cloud Native Asset Manager{% endblock %}
+
+{% block breadcrumbs %}
+<li class="breadcrumb-item"><a href="{% url 'dashboard:index' %}">Dashboard</a></li>
+<li class="breadcrumb-item"><a href="{% url 'assets:list' %}">Assets</a></li>
+<li class="breadcrumb-item active">{% if object %}Edit {{ object.asset_id }}{% else %}Add Asset{% endif %}</li>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white">
+        <h5 class="mb-0">{% if object %}Edit Asset: {{ object.name }}{% else %}Add New Asset{% endif %}</h5>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          {{ form|crispy }}
+          <div class="d-flex justify-content-between mt-4">
+            <a href="{% url 'assets:list' %}" class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">{% if object %}Save Changes{% else %}Create Asset{% endif %}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

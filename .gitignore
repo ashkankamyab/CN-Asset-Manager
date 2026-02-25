@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+*.sqlite3
+backend/db/*.db
+.env
+venv/
+backend/staticfiles/
+*.egg-info/
+dist/
+build/
+.DS_Store
+frontend/node_modules/
+frontend/dist/
+CLAUDE.md

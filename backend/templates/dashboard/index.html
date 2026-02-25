@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Dashboard - Cloud Native Asset Manager{% endblock %}
+
+{% block content %}
+<!-- Stat Cards -->
+<div class="row g-4 mb-4">
+  <div class="col-sm-6 col-xl-3">
+    <div class="card stat-card shadow-sm">
+      <div class="card-body d-flex justify-content-between align-items-center">
+        <div>
+          <div class="text-muted small text-uppercase">Total Assets</div>
+          <div class="fs-3 fw-bold">{{ total_assets|intcomma }}</div>
+        </div>
+        <div class="stat-icon text-primary"><i class="bi bi-hdd-stack"></i></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card stat-card shadow-sm">
+      <div class="card-body d-flex justify-content-between align-items-center">
+        <div>
+          <div class="text-muted small text-uppercase">AWS Accounts</div>
+          <div class="fs-3 fw-bold">{{ total_accounts }}</div>
+        </div>
+        <div class="stat-icon text-info"><i class="bi bi-cloud"></i></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card stat-card shadow-sm">
+      <div class="card-body d-flex justify-content-between align-items-center">
+        <div>
+          <div class="text-muted small text-uppercase">Critical Assets</div>
+          <div class="fs-3 fw-bold text-danger">{{ critical_assets }}</div>
+        </div>
+        <div class="stat-icon text-danger"><i class="bi bi-exclamation-triangle"></i></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card stat-card shadow-sm">
+      <div class="card-body d-flex justify-content-between align-items-center">
+        <div>
+          <div class="text-muted small text-uppercase">Last Discovery</div>
+          <div class="fs-6 fw-bold">
+            {% if last_discovery %}{{ last_discovery|timesince }} ago{% else %}Never{% endif %}
+          </div>
+        </div>
+        <div class="stat-icon text-success"><i class="bi bi-clock-history"></i></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Assets by Service Type -->
+  <div class="col-lg-8">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h6 class="mb-0"><i class="bi bi-bar-chart me-2"></i>Assets by AWS Service</h6>
+        <a href="{% url 'assets:list' %}" class="btn btn-sm btn-outline-secondary">View All</a>
+      </div>
+      <div class="card-body">
+        {% if by_service %}
+        <canvas id="serviceChart" height="250"></canvas>
+        {% else %}
+        <p class="text-muted text-center py-4">No assets discovered yet. Run discovery to populate.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Criticality Distribution -->
+  <div class="col-lg-4">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white">
+        <h6 class="mb-0"><i class="bi bi-pie-chart me-2"></i>Criticality Distribution</h6>
+      </div>
+      <div class="card-body">
+        {% for item in by_criticality %}
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span>
+            <span class="badge badge-{{ item.criticality|lower }}">{{ item.criticality }}</span>
+          </span>
+          <span class="fw-bold">{{ item.count }}</span>
+        </div>
+        <div class="progress mb-3" style="height: 6px;">
+          <div class="progress-bar
+            {% if item.criticality == 'CRITICAL' %}bg-danger{% elif item.criticality == 'HIGH' %}bg-warning{% elif item.criticality == 'MEDIUM' %}bg-info{% else %}bg-success{% endif %}"
+            style="width: {% widthratio item.count total_assets 100 %}%"></div>
+        </div>
+        {% empty %}
+        <p class="text-muted text-center py-4">No data yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4 mt-0">
+  <!-- AWS Accounts Summary -->
+  <div class="col-lg-6">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white">
+        <h6 class="mb-0"><i class="bi bi-cloud me-2"></i>AWS Accounts</h6>
+      </div>
+      <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>Account</th>
+              <th>Environment</th>
+              <th>Assets</th>
+              <th>Last Discovery</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for account in accounts %}
+            <tr>
+              <td>
+                <strong>{{ account.account_name }}</strong>
+                <br><small class="text-muted">{{ account.account_id }}</small>
+              </td>
+              <td><span class="badge bg-secondary">{{ account.get_environment_display }}</span></td>
+              <td>{{ account.asset_count }}</td>
+              <td>
+                {% if account.last_discovery_at %}
+                  {{ account.last_discovery_at|timesince }} ago
+                {% else %}
+                  <span class="text-muted">Never</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="text-center text-muted py-3">No accounts configured. <a href="{% url 'accounts:add' %}">Add one</a>.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Discovery Jobs -->
+  <div class="col-lg-6">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h6 class="mb-0"><i class="bi bi-search me-2"></i>Recent Discovery Jobs</h6>
+        <a href="{% url 'discovery:jobs' %}" class="btn btn-sm btn-outline-secondary">View All</a>
+      </div>
+      <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>Job</th>
+              <th>Status</th>
+              <th>Discovered</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for job in recent_jobs %}
+            <tr>
+              <td>
+                <a href="{% url 'discovery:job_detail' job.pk %}">{{ job.id.hex|truncatechars:10 }}</a>
+                {% if job.aws_account %}<br><small class="text-muted">{{ job.aws_account.account_name }}</small>{% endif %}
+              </td>
+              <td>
+                <span class="badge
+                  {% if job.status == 'COMPLETED' %}bg-success
+                  {% elif job.status == 'RUNNING' %}bg-primary
+                  {% elif job.status == 'FAILED' %}bg-danger
+                  {% else %}bg-secondary{% endif %}">
+                  {{ job.get_status_display }}
+                </span>
+              </td>
+              <td>{{ job.resources_discovered }}</td>
+              <td>{% if job.started_at %}{{ job.started_at|timesince }} ago{% endif %}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="text-center text-muted py-3">No discovery jobs yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if by_service %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4"></script>
+<script>
+const ctx = document.getElementById('serviceChart').getContext('2d');
+new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: [{% for item in by_service %}'{{ item.aws_service_type }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+    datasets: [{
+      label: 'Assets',
+      data: [{% for item in by_service %}{{ item.count }}{% if not forloop.last %},{% endif %}{% endfor %}],
+      backgroundColor: 'rgba(43, 87, 154, 0.7)',
+      borderColor: 'rgba(43, 87, 154, 1)',
+      borderWidth: 1,
+      borderRadius: 4,
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: true, ticks: { stepSize: 1 } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+</script>
+{% endif %}
+{% endblock %}
