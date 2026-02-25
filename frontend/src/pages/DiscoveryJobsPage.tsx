@@ -56,7 +56,7 @@ export default function DiscoveryJobsPage() {
               ))}
             </select>
             <button
-              className="btn btn-primary"
+              className="btn btn-primary text-nowrap"
               onClick={handleTrigger}
               disabled={trigger.isPending}
             >

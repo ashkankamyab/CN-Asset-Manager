@@ -15,22 +15,27 @@ const ENVIRONMENTS = [
   { value: 'SHARED', label: 'Shared Services' },
 ];
 
-const AWS_REGIONS = [
-  'eu-central-1',
-  'eu-west-1',
-  'eu-west-2',
-  'eu-west-3',
-  'eu-north-1',
-  'us-east-1',
-  'us-east-2',
-  'us-west-1',
-  'us-west-2',
-  'ap-southeast-1',
-  'ap-southeast-2',
-  'ap-northeast-1',
-  'ap-south-1',
-  'sa-east-1',
-  'ca-central-1',
+const AWS_REGION_GROUPS = [
+  {
+    label: 'North America',
+    regions: ['us-east-1', 'us-east-2', 'us-west-1', 'us-west-2', 'ca-central-1'],
+  },
+  {
+    label: 'South America',
+    regions: ['sa-east-1'],
+  },
+  {
+    label: 'Europe',
+    regions: ['eu-central-1', 'eu-west-1', 'eu-west-2', 'eu-west-3', 'eu-north-1'],
+  },
+  {
+    label: 'Africa & Middle East',
+    regions: ['af-south-1', 'me-south-1'],
+  },
+  {
+    label: 'Asia Pacific',
+    regions: ['ap-south-1', 'ap-southeast-1', 'ap-southeast-2', 'ap-northeast-1', 'ap-northeast-2', 'ap-east-1'],
+  },
 ];
 
 export default function AccountFormPage() {
@@ -193,29 +198,34 @@ export default function AccountFormPage() {
 
                 <div className="mb-3">
                   <label className="form-label">Discovery Regions</label>
-                  <div className="row row-cols-2 row-cols-md-3 g-2">
-                    {AWS_REGIONS.map((region) => (
-                      <div className="col" key={region}>
-                        <div className="form-check">
-                          <input
-                            type="checkbox"
-                            className="form-check-input"
-                            id={`region-${region}`}
-                            checked={form.discovery_regions.includes(region)}
-                            onChange={(e) => {
-                              const next = e.target.checked
-                                ? [...form.discovery_regions, region]
-                                : form.discovery_regions.filter((r) => r !== region);
-                              set('discovery_regions', next);
-                            }}
-                          />
-                          <label className="form-check-label" htmlFor={`region-${region}`}>
-                            {region}
-                          </label>
-                        </div>
+                  {AWS_REGION_GROUPS.map((group) => (
+                    <div key={group.label} className="mb-2">
+                      <div className="text-muted small fw-semibold mb-1">{group.label}</div>
+                      <div className="row row-cols-2 row-cols-md-3 g-1">
+                        {group.regions.map((region) => (
+                          <div className="col" key={region}>
+                            <div className="form-check">
+                              <input
+                                type="checkbox"
+                                className="form-check-input"
+                                id={`region-${region}`}
+                                checked={form.discovery_regions.includes(region)}
+                                onChange={(e) => {
+                                  const next = e.target.checked
+                                    ? [...form.discovery_regions, region]
+                                    : form.discovery_regions.filter((r) => r !== region);
+                                  set('discovery_regions', next);
+                                }}
+                              />
+                              <label className="form-check-label" htmlFor={`region-${region}`}>
+                                {region}
+                              </label>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                   <div className="form-text">
                     {form.discovery_regions.length === 0
                       ? 'No regions selected — uses global default regions.'

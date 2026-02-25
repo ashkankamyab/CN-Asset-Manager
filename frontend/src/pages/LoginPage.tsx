@@ -49,7 +49,7 @@ export default function LoginPage() {
     >
       <div style={{ width: '100%', maxWidth: 420 }}>
         <div className="text-center mb-4">
-          <h2 className="fw-bold text-white mb-1">TISAX Asset Manager</h2>
+          <h2 className="fw-bold text-white mb-1">Cloud Native Asset Manager</h2>
           <p className="text-secondary small">Sign in to continue</p>
         </div>
 
