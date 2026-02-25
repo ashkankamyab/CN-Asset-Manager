@@ -9,6 +9,12 @@ export function useDiscoveryJobs(params?: Record<string, string>) {
       const { data } = await client.get('/discovery/jobs/', { params });
       return data;
     },
+    refetchInterval: (query) => {
+      const hasActive = query.state.data?.results.some(
+        (j) => j.status === 'PENDING' || j.status === 'RUNNING'
+      );
+      return hasActive ? 3000 : false;
+    },
   });
 }
 
@@ -20,6 +26,10 @@ export function useDiscoveryJob(id: string) {
       return data;
     },
     enabled: !!id,
+    refetchInterval: (query) => {
+      const status = query.state.data?.status;
+      return status === 'PENDING' || status === 'RUNNING' ? 2000 : false;
+    },
   });
 }
 

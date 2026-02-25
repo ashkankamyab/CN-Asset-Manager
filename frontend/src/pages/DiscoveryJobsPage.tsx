@@ -41,9 +41,9 @@ export default function DiscoveryJobsPage() {
       <div className="d-flex justify-content-between align-items-center mt-1 mb-3">
         <h5 className="mb-0">Discovery Jobs</h5>
         {isAdmin && (
-          <div className="d-flex gap-2 align-items-center">
+          <div className="d-flex gap-3 align-items-center">
             <select
-              className="form-select form-select-sm"
+              className="form-select"
               value={selectedAccount}
               onChange={(e) => setSelectedAccount(e.target.value)}
               style={{ maxWidth: 200 }}
@@ -56,7 +56,7 @@ export default function DiscoveryJobsPage() {
               ))}
             </select>
             <button
-              className="btn btn-sm btn-primary"
+              className="btn btn-primary"
               onClick={handleTrigger}
               disabled={trigger.isPending}
             >

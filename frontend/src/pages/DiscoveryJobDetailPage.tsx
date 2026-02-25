@@ -1,4 +1,5 @@
 import { useParams } from 'react-router-dom';
+import { useRef, useEffect } from 'react';
 import TopNavbar from '../components/TopNavbar';
 import { useDiscoveryJob } from '../api/discovery';
 
@@ -23,6 +24,15 @@ function formatDuration(seconds: number | null) {
 export default function DiscoveryJobDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { data: job, isLoading, error } = useDiscoveryJob(id!);
+  const logRef = useRef<HTMLPreElement>(null);
+
+  const isActive = job?.status === 'PENDING' || job?.status === 'RUNNING';
+
+  useEffect(() => {
+    if (logRef.current) {
+      logRef.current.scrollTop = logRef.current.scrollHeight;
+    }
+  }, [job?.log_output]);
 
   if (isLoading) {
     return (
@@ -130,10 +140,18 @@ export default function DiscoveryJobDetailPage() {
         {/* Log Output */}
         <div className="col-12">
           <div className="card">
-            <div className="card-header"><strong>Log Output</strong></div>
+            <div className="card-header d-flex align-items-center gap-2">
+              <strong>Log Output</strong>
+              {isActive && (
+                <span className="badge bg-danger bg-opacity-75" style={{ animation: 'pulse 1.5s infinite' }}>
+                  Live
+                </span>
+              )}
+            </div>
             <div className="card-body p-0">
               {job.log_output ? (
                 <pre
+                  ref={logRef}
                   className="mb-0 p-3"
                   style={{
                     background: '#1a1d23',
