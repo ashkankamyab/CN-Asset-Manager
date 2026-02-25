@@ -13,3 +13,4 @@ whitenoise>=6.5
 gunicorn>=21.2
 mozilla-django-oidc>=4.0
 celery[redis]>=5.3
+psycopg2-binary>=2.9

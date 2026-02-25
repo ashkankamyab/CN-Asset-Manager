@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      component:
+        description: Which component to build
+        type: choice
+        options:
+          - frontend
+          - backend
+          - both
+
+jobs:
+  detect-changes:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect changed paths
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+            frontend:
+              - 'frontend/**'
+
+  build-backend:
+    needs: [detect-changes]
+    if: |
+      always() &&
+      (
+        (github.event_name == 'push' && needs.detect-changes.outputs.backend == 'true') ||
+        (github.event_name == 'workflow_dispatch' && (inputs.component == 'backend' || inputs.component == 'both'))
+      )
+    uses: ./.github/workflows/build-and-push.yml
+    with:
+      component: backend
+    permissions:
+      contents: read
+      packages: write
+
+  build-frontend:
+    needs: [detect-changes]
+    if: |
+      always() &&
+      (
+        (github.event_name == 'push' && needs.detect-changes.outputs.frontend == 'true') ||
+        (github.event_name == 'workflow_dispatch' && (inputs.component == 'frontend' || inputs.component == 'both'))
+      )
+    uses: ./.github/workflows/build-and-push.yml
+    with:
+      component: frontend
+    permissions:
+      contents: read
+      packages: write

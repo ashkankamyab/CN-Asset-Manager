@@ -1,4 +1,20 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-cn_assets}
+      POSTGRES_USER: ${POSTGRES_USER:-cn_assets}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-cn_assets}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   redis:
     image: redis:7-alpine
     ports:
@@ -6,5 +22,41 @@ services:
     volumes:
       - redis-data:/data
 
+  backend:
+    build: ./backend
+    image: ghcr.io/ashkankamyab/cn-asset-manager/backend
+    ports:
+      - "8000:8000"
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-cn_assets}:${POSTGRES_PASSWORD:-change-me}@postgres:5432/${POSTGRES_DB:-cn_assets}
+      CELERY_BROKER_URL: redis://redis:6379/0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  celery:
+    image: ghcr.io/ashkankamyab/cn-asset-manager/backend
+    command: celery -A config worker -l info
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-cn_assets}:${POSTGRES_PASSWORD:-change-me}@postgres:5432/${POSTGRES_DB:-cn_assets}
+      CELERY_BROKER_URL: redis://redis:6379/0
+    depends_on:
+      backend:
+        condition: service_started
+
+  frontend:
+    build: ./frontend
+    image: ghcr.io/ashkankamyab/cn-asset-manager/frontend
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_started
+
 volumes:
+  postgres-data:
   redis-data:
