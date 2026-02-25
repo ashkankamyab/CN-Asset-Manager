@@ -23,8 +23,7 @@ services:
       - redis-data:/data
 
   backend:
-    build: ./backend
-    image: ghcr.io/ashkankamyab/cn-asset-manager/backend
+    image: ghcr.io/ashkankamyab/cn-asset-manager/backend:latest
     ports:
       - "8000:8000"
     env_file: .env
@@ -38,7 +37,8 @@ services:
         condition: service_started
 
   celery:
-    image: ghcr.io/ashkankamyab/cn-asset-manager/backend
+    image: ghcr.io/ashkankamyab/cn-asset-manager/backend:latest
+    entrypoint: []
     command: celery -A config worker -l info
     env_file: .env
     environment:
@@ -49,8 +49,7 @@ services:
         condition: service_started
 
   frontend:
-    build: ./frontend
-    image: ghcr.io/ashkankamyab/cn-asset-manager/frontend
+    image: ghcr.io/ashkankamyab/cn-asset-manager/frontend:latest
     ports:
       - "80:80"
     depends_on:
