@@ -800,6 +800,7 @@ export default function AssetListPage() {
                       <th>Account</th>
                       <th>Region</th>
                       <th>Owner</th>
+                      <th>Department</th>
                       {isAdmin && <th style={{ width: 50 }}></th>}
                     </tr>
                   </thead>
@@ -856,6 +857,7 @@ export default function AssetListPage() {
                         <td className="small">{asset.aws_account_name || '—'}</td>
                         <td className="small">{asset.aws_region || '—'}</td>
                         <td className="small">{asset.owner || '—'}</td>
+                        <td className="small">{asset.department || '—'}</td>
                         {isAdmin && (
                           <td>
                             <Link
@@ -871,7 +873,7 @@ export default function AssetListPage() {
                     ))}
                     {data?.results.length === 0 && (
                       <tr>
-                        <td colSpan={isAdmin ? 12 : 10} className="text-muted text-center">
+                        <td colSpan={isAdmin ? 13 : 11} className="text-muted text-center">
                           No assets found.
                         </td>
                       </tr>
