@@ -1,5 +1,5 @@
-# -- Build stage --
-FROM node:22-alpine AS build
+# -- Build stage (force amd64 — output is platform-independent static files) --
+FROM --platform=linux/amd64 node:22-alpine AS build
 
 WORKDIR /app
 
