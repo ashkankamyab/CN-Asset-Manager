@@ -99,6 +99,53 @@ def run_discovery_task(job_id):
         logger.error(f"Discovery job failed: {e}")
 
 
+@shared_task
+def check_scheduled_discovery():
+    """Hourly beat task: trigger discovery if the configured interval has elapsed."""
+    from datetime import timedelta
+
+    from authentication.models import SiteSettings
+
+    settings = SiteSettings.load()
+    interval = settings.discovery_interval
+
+    if interval == SiteSettings.DiscoveryInterval.DISABLED:
+        logger.info('Scheduled discovery is disabled, skipping.')
+        return
+
+    # Skip if a job is already pending or running
+    if DiscoveryJob.objects.filter(
+        status__in=[DiscoveryJob.Status.PENDING, DiscoveryJob.Status.RUNNING],
+    ).exists():
+        logger.info('Discovery job already in progress, skipping scheduled check.')
+        return
+
+    # Determine threshold based on interval
+    thresholds = {
+        SiteSettings.DiscoveryInterval.DAILY: timedelta(days=1),
+        SiteSettings.DiscoveryInterval.WEEKLY: timedelta(days=7),
+        SiteSettings.DiscoveryInterval.MONTHLY: timedelta(days=30),
+    }
+    delta = thresholds[interval]
+    threshold = timezone.now() - delta
+
+    # Find latest successful job
+    last_job = (
+        DiscoveryJob.objects
+        .filter(status=DiscoveryJob.Status.COMPLETED)
+        .order_by('-completed_at')
+        .first()
+    )
+
+    if last_job and last_job.completed_at and last_job.completed_at >= threshold:
+        logger.info('Last discovery completed at %s, still within %s interval.', last_job.completed_at, interval)
+        return
+
+    logger.info('Triggering scheduled discovery (interval=%s).', interval)
+    from discovery.tasks import run_discovery
+    run_discovery(account_id=None, user=None)
+
+
 @shared_task(time_limit=300)
 def refresh_costs_task():
     """Refresh account costs inside the Celery worker."""

@@ -225,6 +225,7 @@ export interface SiteSettings {
   google_delegated_email: string;
   // General
   session_timeout_minutes: number;
+  discovery_interval: 'disabled' | 'daily' | 'weekly' | 'monthly';
 }
 
 // Filter options

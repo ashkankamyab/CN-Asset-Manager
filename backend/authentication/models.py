@@ -92,6 +92,19 @@ class SiteSettings(models.Model):
     session_timeout_minutes = models.PositiveIntegerField(default=480,
                                                            help_text='Session timeout in minutes')
 
+    class DiscoveryInterval(models.TextChoices):
+        DISABLED = 'disabled', 'Disabled'
+        DAILY = 'daily', 'Daily'
+        WEEKLY = 'weekly', 'Weekly'
+        MONTHLY = 'monthly', 'Monthly'
+
+    discovery_interval = models.CharField(
+        max_length=10,
+        choices=DiscoveryInterval.choices,
+        default=DiscoveryInterval.DISABLED,
+        help_text='How often to run automatic asset discovery',
+    )
+
     class Meta:
         verbose_name = 'Site Settings'
         verbose_name_plural = 'Site Settings'

@@ -557,18 +557,23 @@ function GeneralTab() {
   const { data: settings, isLoading } = useSiteSettings();
   const updateSettings = useUpdateSiteSettings();
   const [timeout, setTimeout_] = useState(480);
+  const [discoveryInterval, setDiscoveryInterval] = useState('disabled');
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    if (settings) setTimeout_(settings.session_timeout_minutes);
+    if (settings) {
+      setTimeout_(settings.session_timeout_minutes);
+      setDiscoveryInterval(settings.discovery_interval ?? 'disabled');
+    }
   }, [settings]);
 
   function handleSave(e: React.FormEvent) {
     e.preventDefault();
     setSaved(false);
-    updateSettings.mutate({ session_timeout_minutes: timeout }, {
-      onSuccess: () => setSaved(true),
-    });
+    updateSettings.mutate(
+      { session_timeout_minutes: timeout, discovery_interval: discoveryInterval },
+      { onSuccess: () => setSaved(true) },
+    );
   }
 
   if (isLoading) {
@@ -613,6 +618,32 @@ function GeneralTab() {
               />
               <div className="form-text">
                 How long before an inactive session expires. Default: 480 (8 hours).
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="card mb-3">
+        <div className="card-header py-2">
+          <strong className="small">Auto Discovery</strong>
+        </div>
+        <div className="card-body">
+          <div className="row align-items-end">
+            <div className="col-md-4">
+              <label className="form-label">Discovery Interval</label>
+              <select
+                className="form-select"
+                value={discoveryInterval}
+                onChange={(e) => setDiscoveryInterval(e.target.value)}
+              >
+                <option value="disabled">Disabled</option>
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+              </select>
+              <div className="form-text">
+                Automatically run asset discovery at the selected interval across all accounts.
               </div>
             </div>
           </div>

@@ -160,6 +160,12 @@ CSRF_COOKIE_HTTPONLY = False
 
 # Celery
 CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='redis://localhost:6379/0')
+CELERY_BEAT_SCHEDULE = {
+    'check-scheduled-discovery': {
+        'task': 'discovery.celery_tasks.check_scheduled_discovery',
+        'schedule': 3600,  # every hour
+    },
+}
 
 # OIDC Configuration (all from env vars)
 if OIDC_ENABLED:

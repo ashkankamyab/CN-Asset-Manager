@@ -48,6 +48,18 @@ services:
       backend:
         condition: service_started
 
+  celery-beat:
+    image: ghcr.io/ashkankamyab/cn-asset-manager/backend:latest
+    entrypoint: []
+    command: celery -A config beat -l info
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-cn_assets}:${POSTGRES_PASSWORD:-change-me}@postgres:5432/${POSTGRES_DB:-cn_assets}
+      CELERY_BROKER_URL: redis://redis:6379/0
+    depends_on:
+      backend:
+        condition: service_started
+
   frontend:
     image: ghcr.io/ashkankamyab/cn-asset-manager/frontend:latest
     ports:
