@@ -234,8 +234,13 @@ export default function AssetFormPage() {
   });
   const [errors, setErrors] = useState<Record<string, string[]>>({});
 
-  // Relationship state (managed after asset exists)
+  // Relationship state
   const [relType, setRelType] = useState('DEPENDS_ON');
+
+  // Pending dependencies for create mode (queued locally, saved after asset creation)
+  const [pendingDeps, setPendingDeps] = useState<
+    { target: AutocompleteResult; relationship_type: string }[]
+  >([]);
 
   useEffect(() => {
     if (existing && isEdit) {
@@ -282,7 +287,17 @@ export default function AssetFormPage() {
 
     const mutation = isEdit ? updateAsset : createAsset;
     mutation.mutate(payload, {
-      onSuccess: (data: { id?: string }) => {
+      onSuccess: async (data: { id?: string }) => {
+        // Create any pending dependencies queued during add mode
+        if (!isEdit && pendingDeps.length > 0 && data.id) {
+          for (const dep of pendingDeps) {
+            createRelationship.mutate({
+              source_asset: data.id,
+              target_asset: dep.target.id,
+              relationship_type: dep.relationship_type,
+            });
+          }
+        }
         navigate(isEdit ? `/assets/${id}` : `/assets/${data.id}`);
       },
       onError: (err: unknown) => {
@@ -294,21 +309,30 @@ export default function AssetFormPage() {
     });
   }
 
-  // Relationship helpers (only available in edit mode)
+  // Relationship helpers
   const existingRelIds = new Set(
     [
       ...(existing?.outgoing_relationships || []).map((r) => r.related_asset_pk),
+      ...pendingDeps.map((d) => d.target.id),
       id, // exclude self
     ].filter(Boolean) as string[],
   );
 
   function handleAddRelationship(target: AutocompleteResult) {
-    if (!id) return;
-    createRelationship.mutate({
-      source_asset: id,
-      target_asset: target.id,
-      relationship_type: relType,
-    });
+    if (isEdit) {
+      if (!id) return;
+      createRelationship.mutate({
+        source_asset: id,
+        target_asset: target.id,
+        relationship_type: relType,
+      });
+    } else {
+      setPendingDeps((prev) => [...prev, { target, relationship_type: relType }]);
+    }
+  }
+
+  function handleRemovePendingDep(idx: number) {
+    setPendingDeps((prev) => prev.filter((_, i) => i !== idx));
   }
 
   function handleRemoveRelationship(relId: number) {
@@ -568,15 +592,66 @@ export default function AssetFormPage() {
             </div>
           </div>
 
-          {/* Dependencies */}
+          {/* Dependencies (create mode — queued locally) */}
           {!isEdit && (
             <div className="card mt-3">
               <div className="card-header"><strong>Dependencies</strong></div>
               <div className="card-body">
-                <p className="text-muted small mb-0">Save the asset first, then edit it to add dependencies.</p>
+                {pendingDeps.length > 0 && (
+                  <table className="table table-sm mb-3">
+                    <thead>
+                      <tr>
+                        <th>Type</th>
+                        <th>Target Asset</th>
+                        <th style={{ width: 40 }}></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {pendingDeps.map((dep, idx) => (
+                        <tr key={idx}>
+                          <td><span className="badge" style={{ background: '#dbeafe', color: '#1e40af' }}>{dep.relationship_type}</span></td>
+                          <td><strong>{dep.target.asset_id}</strong> — {dep.target.name}</td>
+                          <td>
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-outline-danger"
+                              onClick={() => handleRemovePendingDep(idx)}
+                              title="Remove"
+                            >
+                              <i className="bi bi-x-lg"></i>
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+                {pendingDeps.length === 0 && (
+                  <p className="text-muted small">No dependencies yet.</p>
+                )}
+                <div className="d-flex gap-2 align-items-start">
+                  <select
+                    className="form-select form-select-sm"
+                    style={{ maxWidth: 160 }}
+                    value={relType}
+                    onChange={(e) => setRelType(e.target.value)}
+                  >
+                    {RELATIONSHIP_TYPES.map((t) => (
+                      <option key={t.value} value={t.value}>{t.label}</option>
+                    ))}
+                  </select>
+                  <div className="flex-grow-1">
+                    <AssetAutocomplete
+                      onSelect={handleAddRelationship}
+                      excludeIds={existingRelIds}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           )}
+
+          {/* Dependencies (edit mode — saved immediately) */}
           {isEdit && existing && (
             <div className="card mt-3">
               <div className="card-header"><strong>Dependencies</strong></div>
