@@ -9,7 +9,7 @@ class AssetForm(forms.ModelForm):
         fields = [
             'name', 'category', 'asset_type', 'status', 'criticality',
             'aws_account', 'aws_region', 'aws_resource_id', 'aws_resource_arn',
-            'aws_service_type', 'owner', 'description', 'vendor', 'url', 'version',
+            'aws_service_type', 'owner', 'department', 'description', 'vendor', 'url', 'version',
             'data_classification', 'gdpr_relevant', 'contains_personal_data',
             'backup_enabled', 'monitoring_enabled', 'notes',
         ]

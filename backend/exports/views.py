@@ -78,6 +78,7 @@ class ExportMixin:
             asset.get_status_display(),
             asset.get_criticality_display(),
             asset.owner,
+            asset.department,
             asset.version,
             asset.get_data_classification_display(),
             'Yes' if asset.gdpr_relevant else 'No',
@@ -97,7 +98,7 @@ class ExportMixin:
 
 HEADERS = [
     'Asset ID', 'Name', 'Type', 'AWS Service', 'AWS Account', 'Region',
-    'Resource ID', 'ARN', 'Status', 'Criticality', 'Owner', 'Version',
+    'Resource ID', 'ARN', 'Status', 'Criticality', 'Owner', 'Department', 'Version',
     'Data Classification', 'GDPR Relevant', 'Personal Data',
     'Backup Enabled', 'Monitoring Enabled', 'Vendor', 'URL',
     'IP Addresses', 'DNS Names', 'Dependencies',

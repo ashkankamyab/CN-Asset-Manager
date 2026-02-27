@@ -76,6 +76,7 @@ export interface AssetListItem {
   criticality: string;
   criticality_display: string;
   owner: string;
+  department: string;
   category_name: string;
   created_at: string;
   last_seen_at: string | null;
@@ -106,6 +107,7 @@ export interface AssetDetail {
   dns_names: string[];
   tags: Record<string, string>;
   owner: string;
+  department: string;
   description: string;
   vendor: string;
   url: string;

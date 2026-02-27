@@ -93,6 +93,7 @@ class Asset(models.Model):
 
     # Ownership and documentation
     owner = models.CharField(max_length=255, blank=True, default='')
+    department = models.CharField(max_length=255, blank=True, default='')
     description = models.TextField(blank=True, default='')
     vendor = models.CharField(max_length=255, blank=True, default='')
     url = models.CharField(max_length=500, blank=True, default='')

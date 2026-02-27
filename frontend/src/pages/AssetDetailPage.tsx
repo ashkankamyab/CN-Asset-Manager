@@ -114,6 +114,7 @@ export default function AssetDetailPage() {
                   <tr><th>AWS Service</th><td>{asset.aws_service_type_display || '—'}</td></tr>
                   <tr><th>Category</th><td>{asset.category_detail?.name || '—'}</td></tr>
                   <tr><th>Owner</th><td>{asset.owner || '—'}</td></tr>
+                  <tr><th>Department</th><td>{asset.department || '—'}</td></tr>
                   <tr><th>Vendor</th><td>{asset.vendor || '—'}</td></tr>
                   <tr><th>Version</th><td>{asset.version || '—'}</td></tr>
                   <tr><th>URL</th><td>{asset.url ? <a href={asset.url} target="_blank" rel="noreferrer">{asset.url}</a> : '—'}</td></tr>

@@ -217,6 +217,7 @@ export default function AssetFormPage() {
     aws_resource_arn: '',
     aws_service_type: '',
     owner: '',
+    department: '',
     description: '',
     vendor: '',
     url: '',
@@ -249,6 +250,7 @@ export default function AssetFormPage() {
         aws_resource_arn: existing.aws_resource_arn,
         aws_service_type: existing.aws_service_type,
         owner: existing.owner,
+        department: existing.department,
         description: existing.description,
         vendor: existing.vendor,
         url: existing.url,
@@ -461,6 +463,13 @@ export default function AssetFormPage() {
                       <label className="form-label">Owner</label>
                       <input type="text" className="form-control" value={form.owner as string} onChange={(e) => set('owner', e.target.value)} />
                     </div>
+                    <div className="col-md-6">
+                      <label className="form-label">Department</label>
+                      <input type="text" className="form-control" value={form.department as string} onChange={(e) => set('department', e.target.value)} />
+                    </div>
+                  </div>
+
+                  <div className="row mb-3">
                     <div className="col-md-6">
                       <label className="form-label">Vendor</label>
                       <input type="text" className="form-control" value={form.vendor as string} onChange={(e) => set('vendor', e.target.value)} />

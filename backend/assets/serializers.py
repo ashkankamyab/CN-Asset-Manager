@@ -79,7 +79,7 @@ class AssetListSerializer(serializers.ModelSerializer):
             'aws_service_type', 'aws_service_type_display',
             'aws_account', 'aws_account_name', 'aws_region',
             'status', 'status_display', 'criticality', 'criticality_display',
-            'owner', 'category_name', 'created_at', 'last_seen_at',
+            'owner', 'department', 'category_name', 'created_at', 'last_seen_at',
         ]
 
 
@@ -119,7 +119,7 @@ class AssetDetailSerializer(serializers.ModelSerializer):
             'aws_resource_id', 'aws_resource_arn',
             'aws_service_type', 'aws_service_type_display',
             'metadata', 'ip_addresses', 'dns_names', 'tags',
-            'owner', 'description', 'vendor', 'url', 'version',
+            'owner', 'department', 'description', 'vendor', 'url', 'version',
             'data_classification', 'data_classification_display',
             'gdpr_relevant', 'contains_personal_data',
             'backup_enabled', 'monitoring_enabled',

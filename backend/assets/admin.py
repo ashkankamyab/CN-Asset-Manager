@@ -10,8 +10,8 @@ class AssetCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Asset)
 class AssetAdmin(admin.ModelAdmin):
-    list_display = ['asset_id', 'name', 'asset_type', 'aws_service_type', 'status', 'criticality', 'aws_account']
-    list_filter = ['asset_type', 'status', 'criticality', 'aws_service_type', 'aws_account']
+    list_display = ['asset_id', 'name', 'asset_type', 'aws_service_type', 'status', 'criticality', 'department', 'aws_account']
+    list_filter = ['asset_type', 'status', 'criticality', 'aws_service_type', 'department', 'aws_account']
     search_fields = ['name', 'asset_id', 'aws_resource_id', 'aws_resource_arn']
     readonly_fields = ['asset_id', 'created_at', 'updated_at']
 

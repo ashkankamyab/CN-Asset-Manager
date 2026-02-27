@@ -25,6 +25,7 @@ class AssetFilter(django_filters.FilterSet):
     ])
     aws_account = django_filters.UUIDFilter(field_name='aws_account_id')
     aws_region = django_filters.CharFilter(field_name='aws_region')
+    department = django_filters.CharFilter(field_name='department', lookup_expr='icontains')
 
     exclude_asset_type = django_filters.CharFilter(method='filter_exclude_asset_type')
     exclude_aws_service_type = django_filters.CharFilter(method='filter_exclude_aws_service_type')
