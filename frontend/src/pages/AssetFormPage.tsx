@@ -568,7 +568,15 @@ export default function AssetFormPage() {
             </div>
           </div>
 
-          {/* Dependencies (only in edit mode, after asset exists) */}
+          {/* Dependencies */}
+          {!isEdit && (
+            <div className="card mt-3">
+              <div className="card-header"><strong>Dependencies</strong></div>
+              <div className="card-body">
+                <p className="text-muted small mb-0">Save the asset first, then edit it to add dependencies.</p>
+              </div>
+            </div>
+          )}
           {isEdit && existing && (
             <div className="card mt-3">
               <div className="card-header"><strong>Dependencies</strong></div>
