@@ -804,10 +804,11 @@ function EmailTab() {
               <div className="col-md-4">
                 <label className="form-label">Port</label>
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
                   className="form-control"
                   value={form.smtp_port ?? 587}
-                  onChange={(e) => setForm({ ...form, smtp_port: parseInt(e.target.value, 10) || 587 })}
+                  onChange={(e) => setForm({ ...form, smtp_port: parseInt(e.target.value, 10) || 0 })}
                 />
               </div>
             </div>
@@ -837,7 +838,7 @@ function EmailTab() {
                   type="checkbox"
                   id="smtp-tls"
                   checked={form.smtp_use_tls ?? true}
-                  onChange={(e) => setForm({ ...form, smtp_use_tls: e.target.checked, ...(e.target.checked ? { smtp_use_ssl: false } : {}) })}
+                  onChange={(e) => setForm({ ...form, smtp_use_tls: e.target.checked, ...(e.target.checked ? { smtp_use_ssl: false, smtp_port: 587 } : { smtp_port: 25 }) })}
                 />
                 <label className="form-check-label" htmlFor="smtp-tls">Use TLS (port 587)</label>
               </div>
@@ -847,7 +848,7 @@ function EmailTab() {
                   type="checkbox"
                   id="smtp-ssl"
                   checked={form.smtp_use_ssl ?? false}
-                  onChange={(e) => setForm({ ...form, smtp_use_ssl: e.target.checked, ...(e.target.checked ? { smtp_use_tls: false } : {}) })}
+                  onChange={(e) => setForm({ ...form, smtp_use_ssl: e.target.checked, ...(e.target.checked ? { smtp_use_tls: false, smtp_port: 465 } : { smtp_port: 25 }) })}
                 />
                 <label className="form-check-label" htmlFor="smtp-ssl">Use SSL (port 465)</label>
               </div>
