@@ -557,7 +557,7 @@ function GeneralTab() {
   const { data: settings, isLoading } = useSiteSettings();
   const updateSettings = useUpdateSiteSettings();
   const [timeout, setTimeout_] = useState(480);
-  const [discoveryInterval, setDiscoveryInterval] = useState('disabled');
+  const [discoveryInterval, setDiscoveryInterval] = useState<SiteSettings['discovery_interval']>('disabled');
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
@@ -635,7 +635,7 @@ function GeneralTab() {
               <select
                 className="form-select"
                 value={discoveryInterval}
-                onChange={(e) => setDiscoveryInterval(e.target.value)}
+                onChange={(e) => setDiscoveryInterval(e.target.value as SiteSettings['discovery_interval'])}
               >
                 <option value="disabled">Disabled</option>
                 <option value="daily">Daily</option>
