@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import TopNavbar from '../components/TopNavbar';
 import { useDiscoveryJobs, useTriggerDiscovery } from '../api/discovery';
@@ -25,10 +25,15 @@ function formatDuration(seconds: number | null) {
 
 export default function DiscoveryJobsPage() {
   const { isAdmin } = useAuth();
-  const { data, isLoading } = useDiscoveryJobs();
+  const [selectedAccount, setSelectedAccount] = useState('');
+  const jobParams = useMemo(() => {
+    const p: Record<string, string> = {};
+    if (selectedAccount) p.aws_account = selectedAccount;
+    return p;
+  }, [selectedAccount]);
+  const { data, isLoading } = useDiscoveryJobs(jobParams);
   const { data: accountsData } = useAccounts();
   const trigger = useTriggerDiscovery();
-  const [selectedAccount, setSelectedAccount] = useState('');
 
   function handleTrigger() {
     trigger.mutate(selectedAccount || undefined);

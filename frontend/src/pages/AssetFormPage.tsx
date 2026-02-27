@@ -328,6 +328,7 @@ export default function AssetFormPage() {
 
   const title = isEdit ? `Edit ${existing?.asset_id || ''}` : 'Add Asset';
   const isPending = createAsset.isPending || updateAsset.isPending;
+  const isAws = form.asset_type === 'AWS_SERVICE';
 
   return (
     <>
@@ -371,7 +372,7 @@ export default function AssetFormPage() {
                   </div>
 
                   <div className="row mb-3">
-                    <div className="col-md-6">
+                    <div className={isAws ? 'col-md-6' : 'col-md-12'}>
                       <label className="form-label">Asset Type</label>
                       <select className="form-select" value={form.asset_type as string} onChange={(e) => set('asset_type', e.target.value)}>
                         {filterOpts?.asset_types.map((o) => (
@@ -379,15 +380,17 @@ export default function AssetFormPage() {
                         ))}
                       </select>
                     </div>
-                    <div className="col-md-6">
-                      <label className="form-label">AWS Service Type</label>
-                      <select className="form-select" value={form.aws_service_type as string} onChange={(e) => set('aws_service_type', e.target.value)}>
-                        <option value="">---</option>
-                        {filterOpts?.aws_service_types.map((o) => (
-                          <option key={o.value} value={o.value}>{o.label}</option>
-                        ))}
-                      </select>
-                    </div>
+                    {isAws && (
+                      <div className="col-md-6">
+                        <label className="form-label">AWS Service Type</label>
+                        <select className="form-select" value={form.aws_service_type as string} onChange={(e) => set('aws_service_type', e.target.value)}>
+                          <option value="">---</option>
+                          {filterOpts?.aws_service_types.map((o) => (
+                            <option key={o.value} value={o.value}>{o.label}</option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
                   </div>
 
                   <div className="row mb-3">
@@ -418,7 +421,8 @@ export default function AssetFormPage() {
                   </div>
                 </div>
 
-                {/* AWS Details */}
+                {/* AWS Details (only for AWS_SERVICE type) */}
+                {isAws && (
                 <div className="form-section">
                   <div className="form-section-title">AWS Details</div>
                   <div className="row mb-3">
@@ -454,6 +458,7 @@ export default function AssetFormPage() {
                     </div>
                   </div>
                 </div>
+                )}
 
                 {/* Ownership */}
                 <div className="form-section">
