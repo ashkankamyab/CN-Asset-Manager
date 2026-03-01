@@ -55,6 +55,10 @@ MIDDLEWARE = [
     'django_htmx.middleware.HtmxMiddleware',
 ]
 
+# Trust the X-Forwarded-Proto header set by the nginx/ingress reverse proxy
+# so Django builds https:// URLs (e.g. OIDC redirect_uri) when behind TLS.
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
