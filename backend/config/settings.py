@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 import environ
@@ -8,7 +7,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env(
     DEBUG=(bool, False),
     ALLOWED_HOSTS=(list, ['localhost', '127.0.0.1']),
-    OIDC_ENABLED=(bool, False),
 )
 
 env_file = BASE_DIR.parent / '.env'
@@ -34,6 +32,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'crispy_bootstrap5',
     'django_htmx',
+    'mozilla_django_oidc',
     # Local apps
     'authentication',
     'accounts',
@@ -108,18 +107,26 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
 
 # Authentication
-OIDC_ENABLED = env('OIDC_ENABLED')
-
 AUTHENTICATION_BACKENDS = [
+    'authentication.oidc.OIDCBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
 
-if OIDC_ENABLED:
-    AUTHENTICATION_BACKENDS.insert(0, 'authentication.oidc.OIDCBackend')
-
-LOGIN_URL = '/oidc/authenticate/' if OIDC_ENABLED else '/admin/login/'
+LOGIN_URL = '/admin/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
+# OIDC — placeholder settings required by mozilla-django-oidc at import time.
+# Actual values are read from the database SiteSettings at runtime via
+# get_settings() overrides in authentication/oidc.py.
+OIDC_RP_CLIENT_ID = ''
+OIDC_RP_CLIENT_SECRET = ''
+OIDC_OP_AUTHORIZATION_ENDPOINT = ''
+OIDC_OP_TOKEN_ENDPOINT = ''
+OIDC_OP_USER_ENDPOINT = ''
+OIDC_OP_JWKS_ENDPOINT = ''
+OIDC_RP_SIGN_ALGO = 'RS256'
+OIDC_RP_SCOPES = 'openid email profile'
 
 # AWS Configuration
 AWS_DEFAULT_REGION = env('AWS_DEFAULT_REGION', default='eu-central-1')
@@ -167,19 +174,3 @@ CELERY_BEAT_SCHEDULE = {
     },
 }
 
-# OIDC Configuration (all from env vars)
-if OIDC_ENABLED:
-    INSTALLED_APPS += ['mozilla_django_oidc']  # noqa: F405
-    MIDDLEWARE += ['mozilla_django_oidc.middleware.SessionRefresh']  # noqa: F405
-
-    OIDC_RP_CLIENT_ID = env('OIDC_RP_CLIENT_ID', default='')
-    OIDC_RP_CLIENT_SECRET = env('OIDC_RP_CLIENT_SECRET', default='')
-    OIDC_OP_AUTHORIZATION_ENDPOINT = env('OIDC_OP_AUTHORIZATION_ENDPOINT', default='')
-    OIDC_OP_TOKEN_ENDPOINT = env('OIDC_OP_TOKEN_ENDPOINT', default='')
-    OIDC_OP_USER_ENDPOINT = env('OIDC_OP_USER_ENDPOINT', default='')
-    OIDC_OP_JWKS_ENDPOINT = env('OIDC_OP_JWKS_ENDPOINT', default='')
-    OIDC_RP_SIGN_ALGO = env('OIDC_RP_SIGN_ALGO', default='RS256')
-
-    # Custom claim mapping
-    OIDC_ROLE_CLAIM = env('OIDC_ROLE_CLAIM', default='roles')
-    OIDC_ADMIN_ROLE_VALUE = env('OIDC_ADMIN_ROLE_VALUE', default='admin')

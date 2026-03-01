@@ -80,8 +80,9 @@ class ConfigView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
+        from authentication.oidc import is_oidc_enabled
         return Response({
-            'oidc_enabled': getattr(settings, 'OIDC_ENABLED', False),
+            'oidc_enabled': is_oidc_enabled(),
         })
 
 

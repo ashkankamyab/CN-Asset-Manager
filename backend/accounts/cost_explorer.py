@@ -72,24 +72,33 @@ def refresh_account_costs():
     ce = session.client('ce', region_name='us-east-1', config=BOTO_CONFIG)
 
     today = date.today()
-    current_month_start = today.replace(day=1).isoformat()
-    current_month_end = today.isoformat()
+    current_month_start = today.replace(day=1)
+    # AWS Cost Explorer needs Start < End.  On the 1st of the month
+    # start == today, so push end to tomorrow to get a valid range.
+    current_month_end = max(today, current_month_start + timedelta(days=1))
 
-    prev_month_end = today.replace(day=1)
-    prev_month_start = (prev_month_end - timedelta(days=1)).replace(day=1).isoformat()
-    prev_month_end_str = prev_month_end.isoformat()
+    prev_month_end = current_month_start
+    prev_month_start = (prev_month_end - timedelta(days=1)).replace(day=1)
 
-    logger.info('Fetching current month costs (%s to %s)', current_month_start, current_month_end)
-    current_costs = _fetch_costs(ce, current_month_start, current_month_end)
+    logger.info('Fetching current month costs (%s to %s)',
+                current_month_start.isoformat(), current_month_end.isoformat())
+    current_costs = _fetch_costs(ce, current_month_start.isoformat(), current_month_end.isoformat())
 
-    logger.info('Fetching previous month costs (%s to %s)', prev_month_start, prev_month_end_str)
-    previous_costs = _fetch_costs(ce, prev_month_start, prev_month_end_str)
+    logger.info('Fetching previous month costs (%s to %s)',
+                prev_month_start.isoformat(), prev_month_end.isoformat())
+    previous_costs = _fetch_costs(ce, prev_month_start.isoformat(), prev_month_end.isoformat())
 
     now = timezone.now()
     updated = 0
     for account in AWSAccount.objects.filter(is_active=True):
-        account.estimated_monthly_cost = current_costs.get(account.account_id)
-        account.previous_month_cost = previous_costs.get(account.account_id)
+        cost = current_costs.get(account.account_id)
+        prev = previous_costs.get(account.account_id)
+        # Only overwrite with None if the API returned data for other accounts
+        # (i.e. the call succeeded but this account simply had no costs).
+        if cost is not None or current_costs:
+            account.estimated_monthly_cost = cost
+        if prev is not None or previous_costs:
+            account.previous_month_cost = prev
         account.cost_updated_at = now
         account.save(update_fields=['estimated_monthly_cost', 'previous_month_cost', 'cost_updated_at'])
         updated += 1
