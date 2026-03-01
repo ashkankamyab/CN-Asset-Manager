@@ -11,6 +11,7 @@ on:
         options:
           - frontend
           - backend
+          - helm
           - both
 
 jobs:
@@ -22,6 +23,7 @@ jobs:
     outputs:
       backend: ${{ steps.filter.outputs.backend }}
       frontend: ${{ steps.filter.outputs.frontend }}
+      helm: ${{ steps.filter.outputs.helm }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,6 +37,8 @@ jobs:
               - 'backend/**'
             frontend:
               - 'frontend/**'
+            helm:
+              - 'helm/**'
 
   build-backend:
     needs: [detect-changes]
@@ -62,6 +66,19 @@ jobs:
     uses: ./.github/workflows/build-and-push.yml
     with:
       component: frontend
+    permissions:
+      contents: read
+      packages: write
+
+  push-helm:
+    needs: [detect-changes]
+    if: |
+      always() &&
+      (
+        (github.event_name == 'push' && needs.detect-changes.outputs.helm == 'true') ||
+        (github.event_name == 'workflow_dispatch' && (inputs.component == 'helm' || inputs.component == 'both'))
+      )
+    uses: ./.github/workflows/helm-push.yml
     permissions:
       contents: read
       packages: write
