@@ -1,8 +1,10 @@
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 
 export default function Sidebar() {
   const { isAdmin } = useAuth();
+  const { mode, setMode } = useTheme();
 
   const links = [
     { to: '/', icon: 'bi-speedometer2', label: 'Dashboard' },
@@ -10,6 +12,12 @@ export default function Sidebar() {
     { to: '/accounts', icon: 'bi-cloud', label: 'AWS Accounts' },
     { to: '/discovery', icon: 'bi-search', label: 'Discovery' },
     ...(isAdmin ? [{ to: '/settings', icon: 'bi-gear', label: 'Settings' }] : []),
+  ];
+
+  const modes = [
+    { value: 'light' as const, icon: 'bi-sun-fill', title: 'Light' },
+    { value: 'system' as const, icon: 'bi-display', title: 'System' },
+    { value: 'dark' as const, icon: 'bi-moon-stars-fill', title: 'Dark' },
   ];
 
   return (
@@ -35,8 +43,21 @@ export default function Sidebar() {
           </li>
         ))}
       </ul>
-      <div className="p-3">
-        <small className="text-muted" style={{ fontSize: '0.7rem', color: '#4b5563' }}>v1.0.0</small>
+      <div className="p-3 d-flex justify-content-center">
+        <div className="btn-group btn-group-sm" role="group" aria-label="Theme toggle">
+          {modes.map((m) => (
+            <button
+              key={m.value}
+              type="button"
+              title={m.title}
+              className={`btn ${mode === m.value ? 'btn-primary' : 'btn-outline-secondary'}`}
+              style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem', border: mode === m.value ? undefined : '1px solid #4b5563' }}
+              onClick={() => setMode(m.value)}
+            >
+              <i className={`bi ${m.icon}`}></i>
+            </button>
+          ))}
+        </div>
       </div>
     </nav>
   );
