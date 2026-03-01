@@ -67,8 +67,28 @@ class OIDCBackend(OIDCAuthenticationBackend):
             return UserProfile.Role.ADMIN
         return UserProfile.Role.READONLY
 
+    def _sync_user_fields(self, user, claims):
+        """Sync Django user fields from OIDC claims."""
+        email = claims.get('email', '')
+        user.email = email
+        user.first_name = claims.get('given_name', '')
+        user.last_name = claims.get('family_name', '')
+        # Use preferred_username or email prefix as the username
+        username = claims.get('preferred_username', '') or email.split('@')[0] if email else ''
+        if username:
+            user.username = username
+        user.save()
+        return user
+
     def create_user(self, claims):
-        user = super().create_user(claims)
+        email = claims.get('email', '')
+        username = claims.get('preferred_username', '') or (email.split('@')[0] if email else '')
+        user = self.UserModel.objects.create_user(
+            username=username or email,
+            email=email,
+            first_name=claims.get('given_name', ''),
+            last_name=claims.get('family_name', ''),
+        )
         role = self._get_role_from_claims(claims)
         UserProfile.objects.update_or_create(
             user=user,
@@ -80,7 +100,7 @@ class OIDCBackend(OIDCAuthenticationBackend):
         return user
 
     def update_user(self, user, claims):
-        user = super().update_user(user, claims)
+        self._sync_user_fields(user, claims)
         role = self._get_role_from_claims(claims)
         UserProfile.objects.update_or_create(
             user=user,
