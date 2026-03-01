@@ -15,6 +15,27 @@ spec:
         {{- include "cn-asset-manager.selectorLabels" . | nindent 8 }}
     spec:
       initContainers:
+        {{- if and (ne .Values.database.type "sqlite") .Values.database.internal }}
+        - name: wait-for-db
+          image: busybox:1.37
+          command:
+            - sh
+            - -c
+            - |
+              {{- if eq .Values.database.type "postgres" }}
+              HOST="{{ include "cn-asset-manager.postgresqlHost" . }}"
+              PORT=5432
+              {{- else if eq .Values.database.type "mysql" }}
+              HOST="{{ include "cn-asset-manager.mysqlHost" . }}"
+              PORT=3306
+              {{- end }}
+              echo "Waiting for $HOST:$PORT..."
+              until nc -z -w2 "$HOST" "$PORT"; do
+                echo "...still waiting"
+                sleep 2
+              done
+              echo "Database is ready!"
+        {{- end }}
         - name: migrate
           image: "{{ .Values.image.backend.repository }}:{{ .Values.image.backend.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -111,7 +132,7 @@ spec:
         - name: celery-beat
           image: "{{ .Values.image.backend.repository }}:{{ .Values.image.backend.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ["celery", "-A", "config", "beat", "-l", "info", "--scheduler", "django_celery_beat.schedulers:DatabaseScheduler"]
+          command: ["celery", "-A", "config", "beat", "-l", "info"]
           envFrom:
             - secretRef:
                 name: {{ include "cn-asset-manager.fullname" . }}

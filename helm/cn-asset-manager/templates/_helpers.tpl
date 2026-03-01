@@ -35,6 +35,27 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end -}}
 
 {{/*
+Internal PostgreSQL host: <release>-postgresql (Bitnami naming convention).
+*/}}
+{{- define "cn-asset-manager.postgresqlHost" -}}
+{{- printf "%s-postgresql" .Release.Name -}}
+{{- end -}}
+
+{{/*
+Internal MySQL host: <release>-mysql (Bitnami naming convention).
+*/}}
+{{- define "cn-asset-manager.mysqlHost" -}}
+{{- printf "%s-mysql" .Release.Name -}}
+{{- end -}}
+
+{{/*
+Internal Redis host: <release>-redis-master (Bitnami naming convention).
+*/}}
+{{- define "cn-asset-manager.redisHost" -}}
+{{- printf "%s-redis-master" .Release.Name -}}
+{{- end -}}
+
+{{/*
 Construct DATABASE_URL from values.
 */}}
 {{- define "cn-asset-manager.databaseUrl" -}}
@@ -42,13 +63,13 @@ Construct DATABASE_URL from values.
 sqlite:////app/data/db.sqlite3
 {{- else if eq .Values.database.type "postgres" -}}
   {{- if .Values.database.internal -}}
-postgres://{{ .Values.postgresql.auth.username }}:{{ .Values.postgresql.auth.password }}@{{ include "cn-asset-manager.fullname" . }}-postgresql:5432/{{ .Values.postgresql.auth.database }}
+postgres://{{ .Values.postgresql.auth.username }}:{{ .Values.postgresql.auth.password }}@{{ include "cn-asset-manager.postgresqlHost" . }}:5432/{{ .Values.postgresql.auth.database }}
   {{- else -}}
 postgres://{{ .Values.database.external.user }}:{{ .Values.database.external.password }}@{{ .Values.database.external.host }}:{{ .Values.database.external.port | default "5432" }}/{{ .Values.database.external.name }}
   {{- end -}}
 {{- else if eq .Values.database.type "mysql" -}}
   {{- if .Values.database.internal -}}
-mysql://{{ .Values.mysql.auth.username }}:{{ .Values.mysql.auth.password }}@{{ include "cn-asset-manager.fullname" . }}-mysql:3306/{{ .Values.mysql.auth.database }}
+mysql://{{ .Values.mysql.auth.username }}:{{ .Values.mysql.auth.password }}@{{ include "cn-asset-manager.mysqlHost" . }}:3306/{{ .Values.mysql.auth.database }}
   {{- else -}}
 mysql://{{ .Values.database.external.user }}:{{ .Values.database.external.password }}@{{ .Values.database.external.host }}:{{ .Values.database.external.port | default "3306" }}/{{ .Values.database.external.name }}
   {{- end -}}
@@ -60,7 +81,7 @@ Construct CELERY_BROKER_URL from values.
 */}}
 {{- define "cn-asset-manager.celeryBrokerUrl" -}}
 {{- if .Values.redis.internal -}}
-redis://{{ include "cn-asset-manager.fullname" . }}-redis-master:6379/0
+redis://{{ include "cn-asset-manager.redisHost" . }}:6379/0
 {{- else -}}
 {{ .Values.redis.external.url }}
 {{- end -}}
