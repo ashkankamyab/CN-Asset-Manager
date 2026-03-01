@@ -1,0 +1,14 @@
+{{- if eq .Values.database.type "sqlite" -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "cn-asset-manager.fullname" . }}-sqlite
+  labels:
+    {{- include "cn-asset-manager.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+{{- end }}

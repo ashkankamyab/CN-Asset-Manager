@@ -1,0 +1,75 @@
+replicaCount: 1
+
+image:
+  backend:
+    repository: ghcr.io/ashkankamyab/cn-asset-manager/backend
+    tag: latest
+  frontend:
+    repository: ghcr.io/ashkankamyab/cn-asset-manager/frontend
+    tag: latest
+  pullPolicy: IfNotPresent
+
+# --- App settings ---
+app:
+  secretKey: "change-me"
+  debug: "False"
+  allowedHosts: "*"
+  csrfTrustedOrigins: ""
+  corsAllowedOrigins: ""
+
+# --- Database ---
+database:
+  type: postgres          # postgres | mysql | sqlite
+  internal: true          # true = deploy Bitnami subchart, false = use external
+  external:
+    host: ""
+    port: ""
+    name: "cn_asset_manager"
+    user: "cn_user"
+    password: ""
+
+# --- Redis ---
+redis:
+  internal: true          # true = deploy Bitnami subchart, false = use external
+  external:
+    url: ""               # e.g. redis://host:6379/0
+  # Bitnami subchart overrides (only used when redis.internal=true)
+  enabled: false          # controlled by template logic in _helpers.tpl
+  architecture: standalone
+  auth:
+    enabled: false
+
+# --- Ingress ---
+ingress:
+  enabled: true
+  className: nginx
+  host: cn-asset-manager.local
+  tls: []
+  annotations: {}
+
+# --- Service ---
+service:
+  type: ClusterIP
+  port: 80
+
+# --- Resources ---
+resources:
+  backend: {}
+  frontend: {}
+  celery: {}
+  celeryBeat: {}
+
+# --- Bitnami subchart overrides ---
+postgresql:
+  enabled: false          # controlled by template logic
+  auth:
+    database: cn_asset_manager
+    username: cn_user
+    password: cn_pass
+
+mysql:
+  enabled: false          # controlled by template logic
+  auth:
+    database: cn_asset_manager
+    username: cn_user
+    password: cn_pass

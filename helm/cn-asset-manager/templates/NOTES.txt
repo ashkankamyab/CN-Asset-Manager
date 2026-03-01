@@ -1,0 +1,35 @@
+CN-Asset-Manager has been deployed!
+
+{{- if .Values.ingress.enabled }}
+
+Access the application at:
+  http{{ if .Values.ingress.tls }}s{{ end }}://{{ .Values.ingress.host }}
+
+Make sure your DNS or /etc/hosts points {{ .Values.ingress.host }} to your ingress controller.
+{{- else }}
+
+Get the application URL by running:
+  export POD_NAME=$(kubectl get pods -l "app.kubernetes.io/name={{ .Chart.Name }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+  kubectl port-forward $POD_NAME 8080:80
+  echo "Visit http://localhost:8080"
+{{- end }}
+
+Database type: {{ .Values.database.type }}
+{{- if and (eq .Values.database.type "postgres") .Values.database.internal }}
+PostgreSQL: deployed via Bitnami subchart (in-cluster)
+{{- else if and (eq .Values.database.type "postgres") (not .Values.database.internal) }}
+PostgreSQL: external ({{ .Values.database.external.host }})
+{{- else if eq .Values.database.type "sqlite" }}
+SQLite: using PVC for persistent storage
+{{- else if eq .Values.database.type "mysql" }}
+WARNING: MySQL support requires the `mysqlclient` Python package to be
+installed in the backend Docker image. The default image only includes
+`psycopg2-binary` (PostgreSQL driver). You must build a custom backend
+image with `mysqlclient` added to requirements.txt.
+{{- end }}
+
+{{- if .Values.redis.internal }}
+Redis: deployed via Bitnami subchart (in-cluster)
+{{- else }}
+Redis: external ({{ .Values.redis.external.url }})
+{{- end }}

@@ -1,0 +1,136 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "cn-asset-manager.fullname" . }}
+  labels:
+    {{- include "cn-asset-manager.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "cn-asset-manager.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "cn-asset-manager.selectorLabels" . | nindent 8 }}
+    spec:
+      initContainers:
+        - name: migrate
+          image: "{{ .Values.image.backend.repository }}:{{ .Values.image.backend.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["python", "manage.py", "migrate", "--noinput"]
+          envFrom:
+            - secretRef:
+                name: {{ include "cn-asset-manager.fullname" . }}
+          {{- if eq .Values.database.type "sqlite" }}
+          volumeMounts:
+            - name: sqlite-data
+              mountPath: /app/data
+          {{- end }}
+      containers:
+        # --- Backend (gunicorn) ---
+        - name: backend
+          image: "{{ .Values.image.backend.repository }}:{{ .Values.image.backend.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
+          ports:
+            - name: backend
+              containerPort: 8000
+              protocol: TCP
+          envFrom:
+            - secretRef:
+                name: {{ include "cn-asset-manager.fullname" . }}
+          livenessProbe:
+            tcpSocket:
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          readinessProbe:
+            tcpSocket:
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          {{- with .Values.resources.backend }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- if eq .Values.database.type "sqlite" }}
+          volumeMounts:
+            - name: sqlite-data
+              mountPath: /app/data
+          {{- end }}
+
+        # --- Frontend (nginx) ---
+        - name: frontend
+          image: "{{ .Values.image.frontend.repository }}:{{ .Values.image.frontend.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          volumeMounts:
+            - name: nginx-config
+              mountPath: /etc/nginx/conf.d/default.conf
+              subPath: default.conf
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          {{- with .Values.resources.frontend }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+
+        # --- Celery worker ---
+        - name: celery
+          image: "{{ .Values.image.backend.repository }}:{{ .Values.image.backend.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["celery", "-A", "config", "worker", "-l", "info"]
+          envFrom:
+            - secretRef:
+                name: {{ include "cn-asset-manager.fullname" . }}
+          {{- with .Values.resources.celery }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- if eq .Values.database.type "sqlite" }}
+          volumeMounts:
+            - name: sqlite-data
+              mountPath: /app/data
+          {{- end }}
+
+        # --- Celery beat ---
+        - name: celery-beat
+          image: "{{ .Values.image.backend.repository }}:{{ .Values.image.backend.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["celery", "-A", "config", "beat", "-l", "info", "--scheduler", "django_celery_beat.schedulers:DatabaseScheduler"]
+          envFrom:
+            - secretRef:
+                name: {{ include "cn-asset-manager.fullname" . }}
+          {{- with .Values.resources.celeryBeat }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- if eq .Values.database.type "sqlite" }}
+          volumeMounts:
+            - name: sqlite-data
+              mountPath: /app/data
+          {{- end }}
+
+      volumes:
+        - name: nginx-config
+          configMap:
+            name: {{ include "cn-asset-manager.fullname" . }}-nginx
+        {{- if eq .Values.database.type "sqlite" }}
+        - name: sqlite-data
+          persistentVolumeClaim:
+            claimName: {{ include "cn-asset-manager.fullname" . }}-sqlite
+        {{- end }}

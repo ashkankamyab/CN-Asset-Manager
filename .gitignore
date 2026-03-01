@@ -11,4 +11,5 @@ build/
 .DS_Store
 frontend/node_modules/
 frontend/dist/
+helm/cn-asset-manager/charts/
 CLAUDE.md
