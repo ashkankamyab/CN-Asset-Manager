@@ -19,8 +19,7 @@ const STATUS_BADGE: Record<string, string> = {
 function BoolBadge({ value, label }: { value: boolean; label: string }) {
   return (
     <span
-      className="badge me-1"
-      style={value ? { background: '#f0fdf4', color: '#166534' } : { background: '#f3f4f6', color: '#6b7280' }}
+      className={`badge me-1 ${value ? 'badge-soft-green' : 'badge-soft-gray'}`}
     >
       {value ? 'Yes' : 'No'} — {label}
     </span>
@@ -202,7 +201,7 @@ export default function AssetDetailPage() {
               {Object.keys(asset.tags).length > 0 ? (
                 <div className="d-flex flex-wrap gap-2">
                   {Object.entries(asset.tags).map(([k, v]) => (
-                    <span key={k} className="badge" style={{ background: '#f3f4f6', color: '#4b5563', fontWeight: 500 }}>
+                    <span key={k} className="badge badge-soft-gray" style={{ fontWeight: 500 }}>
                       {k}: {v}
                     </span>
                   ))}
@@ -243,7 +242,7 @@ export default function AssetDetailPage() {
                   <tbody>
                     {asset.outgoing_relationships.map((r) => (
                       <tr key={r.id}>
-                        <td><span className="badge" style={{ background: '#dbeafe', color: '#1e40af' }}>{r.relationship_type}</span></td>
+                        <td><span className="badge badge-soft-blue">{r.relationship_type}</span></td>
                         <td><Link to={`/assets/${r.related_asset_pk}`}>{r.related_asset_id} — {r.related_asset_name}</Link></td>
                         <td>{r.description || '—'}</td>
                       </tr>
@@ -269,7 +268,7 @@ export default function AssetDetailPage() {
                   <tbody>
                     {asset.incoming_relationships.map((r) => (
                       <tr key={r.id}>
-                        <td><span className="badge" style={{ background: '#dbeafe', color: '#1e40af' }}>{r.relationship_type}</span></td>
+                        <td><span className="badge badge-soft-blue">{r.relationship_type}</span></td>
                         <td><Link to={`/assets/${r.related_asset_pk}`}>{r.related_asset_id} — {r.related_asset_name}</Link></td>
                         <td>{r.description || '—'}</td>
                       </tr>

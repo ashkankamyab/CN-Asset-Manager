@@ -5,6 +5,7 @@ import {
 } from 'recharts';
 import TopNavbar from '../components/TopNavbar';
 import { useDashboard } from '../api/dashboard';
+import { useTheme } from '../contexts/ThemeContext';
 
 /* ── colour palettes ─────────────────────────────────── */
 const CRITICALITY_COLORS: Record<string, string> = {
@@ -76,6 +77,8 @@ function StatCard({ icon, label, value, accent, sub }: {
 /* ── Dashboard ───────────────────────────────────────── */
 export default function DashboardPage() {
   const { data, isLoading, error } = useDashboard();
+  const { resolved: theme } = useTheme();
+  const isDark = theme === 'dark';
 
   if (isLoading) {
     return (
@@ -162,7 +165,7 @@ export default function DashboardPage() {
                         <stop offset="100%" stopColor="#6366f1" stopOpacity={0.6} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#f1f5f9" />
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" stroke={isDark ? '#2d3039' : '#f1f5f9'} />
                     <XAxis
                       dataKey="aws_service_type"
                       tick={{ fontSize: 10, fill: '#94a3b8' }}
@@ -184,8 +187,10 @@ export default function DashboardPage() {
                       cursor={{ fill: 'rgba(99,102,241,.06)' }}
                       contentStyle={{
                         borderRadius: 8,
-                        border: '1px solid #e9ecef',
-                        boxShadow: '0 4px 12px rgba(0,0,0,.08)',
+                        border: isDark ? '1px solid #2d3039' : '1px solid #e9ecef',
+                        background: isDark ? '#1a1d23' : '#fff',
+                        color: isDark ? '#e5e7eb' : '#111827',
+                        boxShadow: isDark ? '0 4px 12px rgba(0,0,0,.4)' : '0 4px 12px rgba(0,0,0,.08)',
                         fontSize: 12,
                         padding: '6px 10px',
                       }}
@@ -234,7 +239,9 @@ export default function DashboardPage() {
                         contentStyle={{
                           borderRadius: 8,
                           border: 'none',
-                          boxShadow: '0 4px 12px rgba(0,0,0,.1)',
+                          background: isDark ? '#1a1d23' : '#fff',
+                          color: isDark ? '#e5e7eb' : '#111827',
+                          boxShadow: isDark ? '0 4px 12px rgba(0,0,0,.4)' : '0 4px 12px rgba(0,0,0,.1)',
                           fontSize: 12,
                         }}
                       />

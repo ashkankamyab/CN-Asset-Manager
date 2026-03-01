@@ -203,10 +203,10 @@ function UsersTab() {
     admin: '',
     readonly: '',
   };
-  const ROLE_STYLE: Record<string, React.CSSProperties> = {
-    superadmin: { background: '#fef2f2', color: '#991b1b' },
-    admin: { background: '#eef2ff', color: '#4f46e5' },
-    readonly: { background: '#f3f4f6', color: '#4b5563' },
+  const ROLE_CLASS: Record<string, string> = {
+    superadmin: 'badge-soft-red',
+    admin: 'badge-soft-indigo',
+    readonly: 'badge-soft-gray',
   };
 
   if (isLoading) {
@@ -245,12 +245,12 @@ function UsersTab() {
                 <td className="fw-medium">{u.username}</td>
                 <td className="small">{u.email || '—'}</td>
                 <td>
-                  <span className="badge" style={ROLE_STYLE[u.role] || { background: '#f3f4f6', color: '#4b5563' }}>
+                  <span className={`badge ${ROLE_CLASS[u.role] || 'badge-soft-gray'}`}>
                     {u.role}
                   </span>
                 </td>
                 <td>
-                  <span className="badge" style={u.auth_source === 'oidc' ? { background: '#dbeafe', color: '#1e40af' } : { background: '#f3f4f6', color: '#4b5563' }}>
+                  <span className={`badge ${u.auth_source === 'oidc' ? 'badge-soft-blue' : 'badge-soft-gray'}`}>
                     {u.auth_source}
                   </span>
                 </td>

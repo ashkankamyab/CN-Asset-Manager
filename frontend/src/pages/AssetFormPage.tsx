@@ -60,8 +60,8 @@ function TagInput({
       <label className="form-label">{label}</label>
       <div className="d-flex gap-1 flex-wrap mb-1">
         {values.map((v, i) => (
-          <span key={i} className="badge d-flex align-items-center gap-1" style={{ background: '#f3f4f6', color: '#4b5563' }}>
-            <code style={{ color: '#4b5563' }}>{v}</code>
+          <span key={i} className="badge badge-soft-gray d-flex align-items-center gap-1">
+            <code style={{ color: 'inherit' }}>{v}</code>
             <button
               type="button"
               className="btn-close"
@@ -176,7 +176,7 @@ function AssetAutocomplete({
               >
                 <strong>{r.asset_id}</strong> — {r.name}
                 {r.aws_service_type && (
-                  <span className="badge ms-1" style={{ background: '#dbeafe', color: '#1e40af' }}>{r.aws_service_type}</span>
+                  <span className="badge badge-soft-blue ms-1">{r.aws_service_type}</span>
                 )}
               </button>
             </li>
@@ -609,7 +609,7 @@ export default function AssetFormPage() {
                     <tbody>
                       {pendingDeps.map((dep, idx) => (
                         <tr key={idx}>
-                          <td><span className="badge" style={{ background: '#dbeafe', color: '#1e40af' }}>{dep.relationship_type}</span></td>
+                          <td><span className="badge badge-soft-blue">{dep.relationship_type}</span></td>
                           <td><strong>{dep.target.asset_id}</strong> — {dep.target.name}</td>
                           <td>
                             <button
@@ -670,7 +670,7 @@ export default function AssetFormPage() {
                     <tbody>
                       {existing.outgoing_relationships.map((r) => (
                         <tr key={r.id}>
-                          <td><span className="badge" style={{ background: '#dbeafe', color: '#1e40af' }}>{r.relationship_type}</span></td>
+                          <td><span className="badge badge-soft-blue">{r.relationship_type}</span></td>
                           <td><strong>{r.related_asset_id}</strong> — {r.related_asset_name}</td>
                           <td className="small">{r.description || '—'}</td>
                           <td>

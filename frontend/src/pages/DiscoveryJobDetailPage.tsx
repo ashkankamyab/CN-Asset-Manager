@@ -143,7 +143,7 @@ export default function DiscoveryJobDetailPage() {
             <div className="card-header d-flex align-items-center gap-2">
               <strong>Log Output</strong>
               {isActive && (
-                <span className="badge" style={{ background: '#fef2f2', color: '#991b1b', animation: 'pulse 1.5s infinite' }}>
+                <span className="badge badge-soft-red" style={{ animation: 'pulse 1.5s infinite' }}>
                   Live
                 </span>
               )}

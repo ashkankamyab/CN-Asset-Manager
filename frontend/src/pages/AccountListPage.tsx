@@ -107,8 +107,8 @@ export default function AccountListPage() {
                 <tr key={acct.id}>
                   <td><strong>{acct.account_name}</strong></td>
                   <td><code>{acct.account_id}</code></td>
-                  <td><span className="badge" style={{ background: '#f3f4f6', color: '#4b5563' }}>{acct.account_type_display}</span></td>
-                  <td><span className="badge" style={{ background: '#dbeafe', color: '#1e40af' }}>{acct.environment_display}</span></td>
+                  <td><span className="badge badge-soft-gray">{acct.account_type_display}</span></td>
+                  <td><span className="badge badge-soft-blue">{acct.environment_display}</span></td>
                   <td>
                     <span className={`badge ${acct.is_active ? 'badge-active' : 'badge-inactive'}`}>
                       {acct.is_active ? 'Active' : 'Inactive'}
