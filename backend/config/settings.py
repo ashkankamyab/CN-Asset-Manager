@@ -176,5 +176,9 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'discovery.celery_tasks.check_scheduled_discovery',
         'schedule': 3600,  # every hour
     },
+    'refresh-costs': {
+        'task': 'discovery.celery_tasks.refresh_costs_task',
+        'schedule': 21600,  # every 6 hours
+    },
 }
 
