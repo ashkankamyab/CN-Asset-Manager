@@ -6,9 +6,12 @@ metadata:
   labels:
     {{- include "cn-asset-manager.labels" . | nindent 4 }}
 spec:
+  {{- if .Values.database.sqlite.storageClass }}
+  storageClassName: {{ .Values.database.sqlite.storageClass | quote }}
+  {{- end }}
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 1Gi
+      storage: {{ .Values.database.sqlite.size | default "1Gi" }}
 {{- end }}

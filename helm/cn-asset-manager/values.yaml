@@ -27,6 +27,9 @@ database:
     name: "cn_asset_manager"
     user: "cn_user"
     password: ""
+  sqlite:
+    storageClass: ""      # "" = default StorageClass
+    size: 1Gi
 
 # --- Redis ---
 redis:
@@ -38,6 +41,11 @@ redis:
   architecture: standalone
   auth:
     enabled: false
+  master:
+    persistence:
+      enabled: true
+      storageClass: ""
+      size: 2Gi
 
 # --- Ingress ---
 ingress:
@@ -66,6 +74,11 @@ postgresql:
     database: cn_asset_manager
     username: cn_user
     password: cn_pass
+  primary:
+    persistence:
+      enabled: true
+      storageClass: ""    # "" = default StorageClass, or e.g. "gp3", "standard"
+      size: 8Gi
 
 mysql:
   enabled: false          # controlled by template logic
@@ -73,3 +86,8 @@ mysql:
     database: cn_asset_manager
     username: cn_user
     password: cn_pass
+  primary:
+    persistence:
+      enabled: true
+      storageClass: ""
+      size: 8Gi
