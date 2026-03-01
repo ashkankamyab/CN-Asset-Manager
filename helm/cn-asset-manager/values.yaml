@@ -7,7 +7,7 @@ image:
   frontend:
     repository: ghcr.io/ashkankamyab/cn-asset-manager/frontend
     tag: latest
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 
 # --- App settings ---
 app:
