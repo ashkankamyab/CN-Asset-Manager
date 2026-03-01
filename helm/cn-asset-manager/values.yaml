@@ -37,7 +37,7 @@ redis:
   external:
     url: ""               # e.g. redis://host:6379/0
   # Bitnami subchart overrides (only used when redis.internal=true)
-  enabled: false          # controlled by template logic in _helpers.tpl
+  enabled: true           # must match redis.internal (Helm subchart condition)
   architecture: standalone
   auth:
     enabled: false
@@ -69,7 +69,7 @@ resources:
 
 # --- Bitnami subchart overrides ---
 postgresql:
-  enabled: false          # controlled by template logic
+  enabled: true           # must match database.internal when type=postgres
   auth:
     database: cn_asset_manager
     username: cn_user

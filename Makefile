@@ -1,4 +1,4 @@
-.PHONY: install migrate run discover shell superuser frontend-install frontend-dev frontend-build redis celery
+.PHONY: install migrate run discover shell superuser frontend-install frontend-dev frontend-build redis celery helm-deps helm-lint helm-template helm-install helm-uninstall
 
 install:
 	cd backend && pip install -r requirements.txt
@@ -35,3 +35,19 @@ celery:
 
 setup: install migrate frontend-install
 	@echo "Setup complete. Run 'make run' to start the server."
+
+# --- Helm ---
+helm-deps:
+	helm dependency build helm/cn-asset-manager
+
+helm-lint:
+	helm lint helm/cn-asset-manager
+
+helm-template:
+	helm template cn helm/cn-asset-manager
+
+helm-install:
+	helm install cn helm/cn-asset-manager
+
+helm-uninstall:
+	helm uninstall cn
