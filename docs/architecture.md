@@ -137,9 +137,12 @@ Login request (username + password)
   → React stores user in AuthContext
   → All API calls include session cookie + X-CSRFToken header
 
-OIDC flow (if enabled):
-  → Redirect to OIDC provider
-  → Callback creates/updates user with role from JWT claims
+OIDC flow (if enabled via admin UI):
+  → Redirect to OIDC provider (authorization endpoint)
+  → User authenticates with provider
+  → Callback exchanges code for tokens
+  → User created/updated from claims (email, name, preferred_username)
+  → Manually assigned roles are preserved across logins
   → Session created
 ```
 

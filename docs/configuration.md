@@ -52,23 +52,6 @@ DATABASE_URL=sqlite:///path/to/db.sqlite3
 | `CORS_ALLOWED_ORIGINS` | comma-separated | `http://localhost:5173,http://127.0.0.1:5173` | Origins allowed for cross-origin requests. |
 | `CSRF_TRUSTED_ORIGINS` | comma-separated | Same as CORS | Origins trusted for CSRF validation. |
 
-### OIDC (OpenID Connect)
-
-OIDC settings can be configured via environment variables **or** via the admin UI (Site Settings). Environment variables take precedence on startup, but the admin UI settings are used at runtime.
-
-| Variable | Type | Default | Description |
-|----------|------|---------|-------------|
-| `OIDC_ENABLED` | bool | `False` | Enable OIDC authentication. |
-| `OIDC_RP_CLIENT_ID` | string | — | OIDC client ID from your identity provider. |
-| `OIDC_RP_CLIENT_SECRET` | string | — | OIDC client secret. |
-| `OIDC_OP_AUTHORIZATION_ENDPOINT` | string | — | Provider's authorization endpoint URL. |
-| `OIDC_OP_TOKEN_ENDPOINT` | string | — | Provider's token endpoint URL. |
-| `OIDC_OP_USER_ENDPOINT` | string | — | Provider's user info endpoint URL. |
-| `OIDC_OP_JWKS_ENDPOINT` | string | — | Provider's JWKS endpoint URL. |
-| `OIDC_RP_SIGN_ALGO` | string | `RS256` | JWT signing algorithm. |
-| `OIDC_ROLE_CLAIM` | string | `roles` | JWT claim key that contains user roles. |
-| `OIDC_ADMIN_ROLE_VALUE` | string | `admin` | Value in the role claim that maps to admin. |
-
 ## Runtime Site Settings
 
 These settings are managed through the admin UI at **Settings** (admin users only) and stored in the database. They can be changed at runtime without restarting the application.
@@ -80,16 +63,28 @@ These settings are managed through the admin UI at **Settings** (admin users onl
 | Session Timeout | minutes | `480` (8 hours) | Session expiry time. |
 | Discovery Interval | choice | `disabled` | Automatic discovery schedule: `disabled`, `daily`, `weekly`, or `monthly`. |
 
-### OIDC Configuration
+### OIDC (OpenID Connect)
 
-All OIDC fields listed in the environment variables table above can also be configured via the admin UI. The UI fields are:
+All OIDC settings are configured via the admin UI (**Settings > OIDC**) and stored in the database. No environment variables are needed. Changes take effect immediately without restarting the application.
 
-- OIDC Enabled (toggle)
-- Client ID, Client Secret
-- Authority URL
-- Authorization, Token, User Info, and JWKS endpoints
-- Signing Algorithm
-- Role Claim, Admin Role Value
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| Enable OIDC | toggle | off | Enable/disable OIDC authentication. When enabled, a "Sign in with OIDC" button appears on the login page. |
+| Client ID | string | — | Application (client) ID from your identity provider. |
+| Client Secret | string | — | Client secret from your identity provider. |
+| Authority URL | URL | — | Base URL of the OIDC provider (e.g., `https://login.microsoftonline.com/{tenant}/v2.0`). |
+| Authorization Endpoint | URL | — | Provider's OAuth 2.0 authorization endpoint. |
+| Token Endpoint | URL | — | Provider's OAuth 2.0 token endpoint. |
+| User Info Endpoint | URL | — | Provider's userinfo endpoint. |
+| JWKS Endpoint | URL | — | Provider's JSON Web Key Set endpoint (for token signature verification). |
+| Signing Algorithm | string | `RS256` | JWT signing algorithm. |
+| Role Claim | string | `roles` | JWT claim key that contains user roles. |
+| Admin Role Value | string | `admin` | Value in the role claim that grants admin access. |
+
+**Note:** The OIDC callback URL that must be registered with your identity provider is:
+```
+https://your-domain/oidc/callback/
+```
 
 ### Email Configuration
 

@@ -69,48 +69,63 @@ The login flow:
 
 ### OIDC (OpenID Connect) SSO
 
-OIDC allows users to log in with an external identity provider (e.g., Okta, Azure AD, Keycloak, Google Workspace).
+OIDC allows users to log in with an external identity provider (e.g., Azure Entra ID, Okta, Keycloak, Google Workspace). All OIDC settings are configured via the admin UI and take effect immediately — no environment variables or restarts needed.
 
 #### Enabling OIDC
 
-1. Go to **Settings**
-2. Toggle **OIDC Enabled** on
+1. Go to **Settings > OIDC**
+2. Toggle **Enable OIDC Authentication** on
 3. Fill in the provider configuration:
 
-| Field | Description | Example |
+| Field | Description | Example (Azure Entra ID) |
 |-------|-------------|---------|
-| Client ID | Your OIDC client ID | `cn-asset-manager` |
-| Client Secret | Your OIDC client secret | `secret-value` |
-| Authority URL | Base URL of the provider | `https://auth.example.com/realms/myorg` |
-| Authorization Endpoint | Provider's authorize URL | `https://auth.example.com/.../authorize` |
-| Token Endpoint | Provider's token URL | `https://auth.example.com/.../token` |
-| User Info Endpoint | Provider's userinfo URL | `https://auth.example.com/.../userinfo` |
-| JWKS Endpoint | Provider's JWKS URL | `https://auth.example.com/.../certs` |
+| Authority URL | Base URL of the provider | `https://login.microsoftonline.com/{tenant-id}/v2.0` |
+| Authorization Endpoint | Provider's authorize URL | `https://login.microsoftonline.com/{tenant-id}/oauth2/v2.0/authorize` |
+| Token Endpoint | Provider's token URL | `https://login.microsoftonline.com/{tenant-id}/oauth2/v2.0/token` |
+| User Info Endpoint | Provider's userinfo URL | `https://graph.microsoft.com/oidc/userinfo` |
+| JWKS Endpoint | Provider's JWKS URL | `https://login.microsoftonline.com/{tenant-id}/discovery/v2.0/keys` |
+| Client ID | Application (client) ID | `591537bd-c8ef-4ffa-...` |
+| Client Secret | Client secret value | `secret-value` |
 | Signing Algorithm | JWT signing algorithm | `RS256` (default) |
 | Role Claim | JWT claim key for roles | `roles` (default) |
 | Admin Role Value | Value that grants admin role | `admin` (default) |
 
-4. Click **Save**
+4. Click **Save Settings**
+
+#### Identity Provider Setup
+
+In your identity provider, register the following redirect URI:
+
+```
+https://your-domain/oidc/callback/
+```
+
+**Important:** The URI must use `https://`. The application requires TLS termination (e.g., via an ingress controller) and the proxy must forward the `X-Forwarded-Proto` header so Django builds correct redirect URIs.
+
+The application requests `openid email profile` scopes. Ensure your identity provider is configured to return email, given_name, family_name, and preferred_username claims.
 
 #### OIDC Login Flow
 
-When OIDC is enabled, the login page shows a "Login with SSO" button. Clicking it:
+When OIDC is enabled, the login page shows a **"Sign in with OIDC"** button. Clicking it:
 
 1. Redirects to the OIDC provider's authorization endpoint
 2. User authenticates with the provider
-3. Provider redirects back with an authorization code
+3. Provider redirects back to `/oidc/callback/` with an authorization code
 4. Backend exchanges the code for tokens
-5. Backend extracts user info and role from the JWT
-6. A local user is created or updated with the OIDC role mapping
+5. Backend extracts user info (email, name) from the claims
+6. A local user is created or updated
 7. A Django session is created
 
-#### Role Mapping
+#### User Creation and Roles
 
-The OIDC backend reads the configured **Role Claim** from the JWT and maps it:
-- If the claim value matches the **Admin Role Value** → user gets `admin` role
-- Otherwise → user gets `readonly` role
+- **New users** created via OIDC are assigned the **read-only** role by default
+- **Admins** can promote OIDC users to admin via the Settings > Users page
+- **Manually assigned roles are preserved** — subsequent OIDC logins will not downgrade a user's role
+- If your identity provider includes a role claim (e.g., Azure App Roles), users with the matching admin role value are automatically granted admin access
+- **Username** is set from the `preferred_username` claim (typically the UPN/email), not the random `sub` identifier
+- **Email, first name, and last name** are synced from OIDC claims on every login
 
-Users created via OIDC have `auth_source = oidc` and cannot use password login.
+Users created via OIDC have `auth_source = oidc` and cannot use password-based login or password reset.
 
 ## Email Configuration
 
