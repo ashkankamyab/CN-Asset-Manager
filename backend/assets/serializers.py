@@ -156,6 +156,7 @@ class AssetRelationshipWriteSerializer(serializers.ModelSerializer):
 class BulkUpdateSerializer(serializers.Serializer):
     asset_ids = serializers.ListField(child=serializers.UUIDField())
     owner = serializers.CharField(required=False, allow_blank=True)
+    department = serializers.CharField(required=False, allow_blank=True)
     criticality = serializers.ChoiceField(
         choices=Asset.Criticality.choices, required=False
     )

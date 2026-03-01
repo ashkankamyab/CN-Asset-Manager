@@ -112,6 +112,8 @@ class AssetViewSet(viewsets.ModelViewSet):
 
         if 'owner' in serializer.validated_data and serializer.validated_data['owner']:
             assets.update(owner=serializer.validated_data['owner'])
+        if 'department' in serializer.validated_data and serializer.validated_data['department']:
+            assets.update(department=serializer.validated_data['department'])
         if 'criticality' in serializer.validated_data:
             assets.update(criticality=serializer.validated_data['criticality'])
         if 'data_classification' in serializer.validated_data:

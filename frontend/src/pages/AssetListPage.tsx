@@ -338,6 +338,7 @@ export default function AssetListPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkOwner, setBulkOwner] = useState('');
+  const [bulkDepartment, setBulkDepartment] = useState('');
   const [bulkCriticality, setBulkCriticality] = useState('');
   const [bulkClassification, setBulkClassification] = useState('');
 
@@ -465,12 +466,14 @@ export default function AssetListPage() {
       asset_ids: Array.from(selected),
     };
     if (bulkOwner) payload.owner = bulkOwner;
+    if (bulkDepartment) payload.department = bulkDepartment;
     if (bulkCriticality) payload.criticality = bulkCriticality;
     if (bulkClassification) payload.data_classification = bulkClassification;
     bulkUpdate.mutate(payload as never, {
       onSuccess: () => {
         setSelected(new Set());
         setBulkOwner('');
+        setBulkDepartment('');
         setBulkCriticality('');
         setBulkClassification('');
       },
@@ -687,6 +690,14 @@ export default function AssetListPage() {
                   placeholder="Owner"
                   value={bulkOwner}
                   onChange={(e) => setBulkOwner(e.target.value)}
+                  style={{ maxWidth: 150 }}
+                />
+                <input
+                  type="text"
+                  className="form-control form-control-sm"
+                  placeholder="Department"
+                  value={bulkDepartment}
+                  onChange={(e) => setBulkDepartment(e.target.value)}
                   style={{ maxWidth: 150 }}
                 />
                 <select
