@@ -101,14 +101,20 @@ class OIDCBackend(OIDCAuthenticationBackend):
 
     def update_user(self, user, claims):
         self._sync_user_fields(user, claims)
-        role = self._get_role_from_claims(claims)
-        UserProfile.objects.update_or_create(
+        # Only update role from claims if the claim grants a higher role.
+        # Never downgrade a manually promoted user (e.g. admin → readonly).
+        claim_role = self._get_role_from_claims(claims)
+        profile, _ = UserProfile.objects.get_or_create(
             user=user,
             defaults={
-                'role': role,
+                'role': claim_role,
                 'auth_source': UserProfile.AuthSource.OIDC,
             },
         )
+        if claim_role == UserProfile.Role.ADMIN and profile.role == UserProfile.Role.READONLY:
+            profile.role = UserProfile.Role.ADMIN
+        profile.auth_source = UserProfile.AuthSource.OIDC
+        profile.save()
         return user
 
     def filter_users_by_claims(self, claims):
