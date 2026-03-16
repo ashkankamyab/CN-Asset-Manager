@@ -10,6 +10,7 @@ import {
   useUpdateSiteSettings,
   useTestEmail,
 } from '../api/admin';
+import { useChangePassword } from '../api/auth';
 import type { AdminUser, SiteSettings } from '../types';
 
 // ────────────────────────────────────────
@@ -52,14 +53,13 @@ function UserFormModal({
     setErrors({});
 
     if (isEdit) {
-      const payload: Record<string, unknown> = {
+      const payload = {
         id: user!.id,
         username: form.username,
         email: form.email,
         role: form.role,
         is_active: form.is_active,
       };
-      if (form.password) payload.password = form.password;
       update.mutate(payload as { id: number } & Record<string, unknown>, {
         onSuccess: onClose,
         onError: (err: unknown) => {
@@ -119,21 +119,21 @@ function UserFormModal({
               {errors.email && <div className="invalid-feedback">{errors.email[0]}</div>}
             </div>
 
-            <div className="mb-3">
-              <label className="form-label">
-                Password {isEdit && <span className="text-muted small">(leave blank to keep)</span>}
-              </label>
-              <input
-                type="password"
-                className={`form-control${errors.password ? ' is-invalid' : ''}`}
-                value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
-                {...(!isEdit ? { required: true, minLength: 8 } : {})}
-                placeholder={isEdit ? 'Unchanged' : ''}
-              />
-              {errors.password && <div className="invalid-feedback">{errors.password[0]}</div>}
-              {!isEdit && <div className="form-text">Minimum 8 characters.</div>}
-            </div>
+            {!isEdit && (
+              <div className="mb-3">
+                <label className="form-label">Password</label>
+                <input
+                  type="password"
+                  className={`form-control${errors.password ? ' is-invalid' : ''}`}
+                  value={form.password}
+                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  required
+                  minLength={8}
+                />
+                {errors.password && <div className="invalid-feedback">{errors.password[0]}</div>}
+                <div className="form-text">Minimum 8 characters.</div>
+              </div>
+            )}
 
             <div className="mb-3">
               <label className="form-label">Role</label>
@@ -183,6 +183,115 @@ function UserFormModal({
 }
 
 // ────────────────────────────────────────
+// Change Password Modal
+// ────────────────────────────────────────
+function ChangePasswordModal({
+  user,
+  onClose,
+}: {
+  user: AdminUser;
+  onClose: () => void;
+}) {
+  const changePassword = useChangePassword();
+  const [form, setForm] = useState({
+    old_password: '',
+    new_password: '',
+    confirm_password: '',
+  });
+  const [errors, setErrors] = useState<Record<string, string[]>>({});
+  const [success, setSuccess] = useState(false);
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setErrors({});
+    setSuccess(false);
+
+    if (form.new_password !== form.confirm_password) {
+      setErrors({ confirm_password: ['Passwords do not match.'] });
+      return;
+    }
+
+    changePassword.mutate(form, {
+      onSuccess: () => setSuccess(true),
+      onError: (err: unknown) => {
+        const axErr = err as { response?: { data?: Record<string, string[]> } };
+        if (axErr.response?.data) setErrors(axErr.response.data);
+      },
+    });
+  }
+
+  return (
+    <div className="modal d-block" tabIndex={-1} style={{ background: 'rgba(0,0,0,.5)' }}>
+      <div className="modal-dialog">
+        <form className="modal-content" onSubmit={handleSubmit}>
+          <div className="modal-header">
+            <h5 className="modal-title">Change Password — {user.username}</h5>
+            <button type="button" className="btn-close" onClick={onClose} />
+          </div>
+          <div className="modal-body">
+            {success && (
+              <div className="alert alert-success py-2 small">Password changed successfully.</div>
+            )}
+            {errors.detail && (
+              <div className="alert alert-danger py-1 small">{errors.detail}</div>
+            )}
+
+            <div className="mb-3">
+              <label className="form-label">Current Password</label>
+              <input
+                type="password"
+                className={`form-control${errors.old_password ? ' is-invalid' : ''}`}
+                value={form.old_password}
+                onChange={(e) => setForm({ ...form, old_password: e.target.value })}
+                required
+              />
+              {errors.old_password && <div className="invalid-feedback">{errors.old_password[0]}</div>}
+            </div>
+
+            <div className="mb-3">
+              <label className="form-label">New Password</label>
+              <input
+                type="password"
+                className={`form-control${errors.new_password ? ' is-invalid' : ''}`}
+                value={form.new_password}
+                onChange={(e) => setForm({ ...form, new_password: e.target.value })}
+                required
+                minLength={8}
+              />
+              {errors.new_password && <div className="invalid-feedback">{errors.new_password[0]}</div>}
+              <div className="form-text">Minimum 8 characters.</div>
+            </div>
+
+            <div className="mb-3">
+              <label className="form-label">Confirm New Password</label>
+              <input
+                type="password"
+                className={`form-control${errors.confirm_password ? ' is-invalid' : ''}`}
+                value={form.confirm_password}
+                onChange={(e) => setForm({ ...form, confirm_password: e.target.value })}
+                required
+                minLength={8}
+              />
+              {errors.confirm_password && <div className="invalid-feedback">{errors.confirm_password[0]}</div>}
+            </div>
+          </div>
+          <div className="modal-footer">
+            <button type="button" className="btn btn-secondary" onClick={onClose}>
+              {success ? 'Close' : 'Cancel'}
+            </button>
+            {!success && (
+              <button type="submit" className="btn btn-primary" disabled={changePassword.isPending}>
+                {changePassword.isPending ? 'Changing...' : 'Change Password'}
+              </button>
+            )}
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// ────────────────────────────────────────
 // Users Tab
 // ────────────────────────────────────────
 function UsersTab() {
@@ -192,6 +301,7 @@ function UsersTab() {
   const [modalUser, setModalUser] = useState<AdminUser | null | undefined>(undefined);
   // undefined = closed, null = create, AdminUser = edit
   const [confirmDelete, setConfirmDelete] = useState<AdminUser | null>(null);
+  const [passwordUser, setPasswordUser] = useState<AdminUser | null>(null);
 
   function closeModal() {
     setModalUser(undefined);
@@ -273,6 +383,15 @@ function UsersTab() {
                     >
                       <i className="bi bi-pencil-square" />
                     </button>
+                    {u.auth_source !== 'oidc' && (
+                      <button
+                        className="btn btn-sm btn-outline-warning py-0 px-1"
+                        title="Change Password"
+                        onClick={() => setPasswordUser(u)}
+                      >
+                        <i className="bi bi-key" />
+                      </button>
+                    )}
                     {!u.is_superadmin && (
                       <button
                         className="btn btn-sm btn-outline-danger py-0 px-1"
@@ -300,6 +419,11 @@ function UsersTab() {
       {/* User form modal */}
       {modalUser !== undefined && (
         <UserFormModal user={modalUser} onClose={closeModal} />
+      )}
+
+      {/* Change password modal */}
+      {passwordUser && (
+        <ChangePasswordModal user={passwordUser} onClose={() => setPasswordUser(null)} />
       )}
 
       {/* Delete confirmation modal */}
@@ -665,7 +789,7 @@ function GeneralTab() {
               </tr>
               <tr>
                 <td className="text-muted">Version</td>
-                <td>1.0.0</td>
+                <td>{import.meta.env.VITE_APP_VERSION || 'dev'}</td>
               </tr>
             </tbody>
           </table>

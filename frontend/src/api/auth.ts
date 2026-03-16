@@ -41,6 +41,12 @@ export function useConfig() {
   });
 }
 
+export function useChangePassword() {
+  return useMutation<{ detail: string }, unknown, { old_password: string; new_password: string; confirm_password: string }>({
+    mutationFn: (data) => client.post('/auth/change-password/', data).then((r) => r.data),
+  });
+}
+
 export function useForgotPassword() {
   return useMutation<{ detail: string }, unknown, string>({
     mutationFn: (email: string) =>

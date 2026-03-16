@@ -94,6 +94,32 @@ class LogoutView(APIView):
         return Response({'detail': 'Logged out.'})
 
 
+class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        old_password = request.data.get('old_password', '')
+        new_password = request.data.get('new_password', '')
+        confirm_password = request.data.get('confirm_password', '')
+
+        if not old_password or not new_password or not confirm_password:
+            return Response({'detail': 'All fields are required.'}, status=400)
+
+        if not request.user.check_password(old_password):
+            return Response({'old_password': ['Current password is incorrect.']}, status=400)
+
+        if new_password != confirm_password:
+            return Response({'confirm_password': ['Passwords do not match.']}, status=400)
+
+        if len(new_password) < 8:
+            return Response({'new_password': ['Password must be at least 8 characters.']}, status=400)
+
+        request.user.set_password(new_password)
+        request.user.save()
+        login(request, request.user)
+        return Response({'detail': 'Password changed successfully.'})
+
+
 class ForgotPasswordView(APIView):
     permission_classes = [AllowAny]
 

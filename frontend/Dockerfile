@@ -1,13 +1,15 @@
 # -- Build stage (force amd64 — output is platform-independent static files) --
 FROM --platform=linux/amd64 node:22-alpine AS build
 
+ARG APP_VERSION=0.0.0
+
 WORKDIR /app
 
 COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
-RUN npm run build
+RUN VITE_APP_VERSION=${APP_VERSION} npm run build
 
 # -- Serve stage --
 FROM nginx:alpine

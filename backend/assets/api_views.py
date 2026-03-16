@@ -179,7 +179,6 @@ class AssetViewSet(viewsets.ModelViewSet):
             'statuses': [
                 {'value': c[0], 'label': c[1]}
                 for c in Asset.Status.choices
-                if c[0] != 'DECOMMISSIONED'
             ],
             'data_classifications': [
                 {'value': c[0], 'label': c[1]}
