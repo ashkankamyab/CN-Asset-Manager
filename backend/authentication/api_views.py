@@ -1,7 +1,7 @@
 import logging
 
 from django.conf import settings
-from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash, get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -116,7 +116,7 @@ class ChangePasswordView(APIView):
 
         request.user.set_password(new_password)
         request.user.save()
-        login(request, request.user)
+        update_session_auth_hash(request, request.user)
         return Response({'detail': 'Password changed successfully.'})
 
 
