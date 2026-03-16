@@ -179,7 +179,7 @@ class DiscoveryJobSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'aws_account', 'aws_account_name',
             'status', 'started_at', 'completed_at',
-            'resources_discovered', 'resources_updated', 'resources_new',
+            'resources_discovered', 'resources_updated', 'resources_new', 'resources_decommissioned',
             'error_message', 'triggered_by_username',
             'log_output', 'duration_seconds',
         ]

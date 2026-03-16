@@ -87,6 +87,7 @@ export default function DiscoveryJobsPage() {
                 <th>Discovered</th>
                 <th>New</th>
                 <th>Updated</th>
+                <th>Decommissioned</th>
                 <th>Started</th>
                 <th>Duration</th>
                 <th>Triggered By</th>
@@ -112,6 +113,7 @@ export default function DiscoveryJobsPage() {
                   <td>{job.resources_discovered}</td>
                   <td>{job.resources_new}</td>
                   <td>{job.resources_updated}</td>
+                  <td>{job.resources_decommissioned}</td>
                   <td className="small">{formatDate(job.started_at)}</td>
                   <td className="small">{formatDuration(job.duration_seconds)}</td>
                   <td className="small">{job.triggered_by_username || '—'}</td>

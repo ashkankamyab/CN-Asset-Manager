@@ -386,7 +386,7 @@ export default function AssetListPage() {
   const [excludeOpen, setExcludeOpen] = useState(true);
 
   const FILTER_KEYS = ['asset_type', 'aws_service_type', 'criticality', 'status', 'aws_account', 'aws_region'] as const;
-  const EXCLUDE_KEYS = ['exclude_aws_service_type', 'exclude_asset_type', 'exclude_criticality', 'exclude_status'] as const;
+  const EXCLUDE_KEYS = ['exclude_aws_service_type', 'exclude_asset_type', 'exclude_criticality', 'exclude_status', 'exclude_aws_account', 'exclude_aws_region'] as const;
 
   const activeFilterCount = useMemo(() => {
     let count = 0;
@@ -642,6 +642,18 @@ export default function AssetListPage() {
                       options={filterOpts.statuses}
                       selected={params.exclude_status || ''}
                       onToggle={(v) => toggleExcludeValue('exclude_status', v)}
+                    />
+                    <ExcludeCheckboxGroup
+                      label="Accounts"
+                      options={filterOpts.aws_accounts}
+                      selected={params.exclude_aws_account || ''}
+                      onToggle={(v) => toggleExcludeValue('exclude_aws_account', v)}
+                    />
+                    <ExcludeCheckboxGroup
+                      label="Regions"
+                      options={filterOpts.aws_regions.map((r: string) => ({ value: r, label: r }))}
+                      selected={params.exclude_aws_region || ''}
+                      onToggle={(v) => toggleExcludeValue('exclude_aws_region', v)}
                     />
                   </div>
                 )}

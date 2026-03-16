@@ -139,6 +139,7 @@ export interface DiscoveryJob {
   resources_discovered: number;
   resources_updated: number;
   resources_new: number;
+  resources_decommissioned: number;
   error_message: string;
   triggered_by_username: string;
   log_output: string;

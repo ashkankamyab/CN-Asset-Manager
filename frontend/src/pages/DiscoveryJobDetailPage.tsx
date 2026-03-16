@@ -100,23 +100,29 @@ export default function DiscoveryJobDetailPage() {
             <div className="card-header"><strong>Results</strong></div>
             <div className="card-body">
               <div className="row text-center">
-                <div className="col-4">
+                <div className="col-3">
                   <div className="fs-3 fw-bold text-primary">
                     {job.resources_discovered}
                   </div>
                   <div className="text-muted small">Discovered</div>
                 </div>
-                <div className="col-4">
+                <div className="col-3">
                   <div className="fs-3 fw-bold text-success">
                     {job.resources_new}
                   </div>
                   <div className="text-muted small">New</div>
                 </div>
-                <div className="col-4">
+                <div className="col-3">
                   <div className="fs-3 fw-bold text-warning">
                     {job.resources_updated}
                   </div>
                   <div className="text-muted small">Updated</div>
+                </div>
+                <div className="col-3">
+                  <div className="fs-3 fw-bold text-danger">
+                    {job.resources_decommissioned}
+                  </div>
+                  <div className="text-muted small">Decommissioned</div>
                 </div>
               </div>
             </div>

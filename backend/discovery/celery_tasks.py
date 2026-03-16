@@ -4,7 +4,7 @@ from celery import shared_task
 from django.utils import timezone
 
 from accounts.models import AWSAccount
-from assets.models import DiscoveryJob
+from assets.models import Asset, DiscoveryJob
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +22,7 @@ def run_discovery_task(job_id):
     total_discovered = 0
     total_new = 0
     total_updated = 0
+    total_decommissioned = 0
     log_lines = []
 
     try:
@@ -42,6 +43,7 @@ def run_discovery_task(job_id):
             job.save(update_fields=['log_output'])
 
         for account in accounts:
+            discovery_start = timezone.now()
             log_lines.append(f"Starting discovery for {account.account_name} ({account.account_id})")
             flush_logs()
             try:
@@ -58,6 +60,17 @@ def run_discovery_task(job_id):
                     else:
                         updated_count += 1
 
+                # Mark stale assets as DECOMMISSIONED
+                stale_assets = Asset.objects.filter(
+                    aws_account=account,
+                    asset_type='AWS_SERVICE',
+                    last_seen_at__lt=discovery_start,
+                ).exclude(
+                    status='DECOMMISSIONED',
+                )
+                decom_count = stale_assets.update(status='DECOMMISSIONED')
+                total_decommissioned += decom_count
+
                 total_discovered += len(resources)
                 total_new += new_count
                 total_updated += updated_count
@@ -65,7 +78,7 @@ def run_discovery_task(job_id):
                 account.last_discovery_at = timezone.now()
                 account.save(update_fields=['last_discovery_at'])
 
-                log_lines.append(f"  New: {new_count}, Updated: {updated_count}")
+                log_lines.append(f"  New: {new_count}, Updated: {updated_count}, Decommissioned: {decom_count}")
 
                 if discoverer.errors:
                     for err in discoverer.errors:
@@ -82,6 +95,7 @@ def run_discovery_task(job_id):
         job.resources_discovered = total_discovered
         job.resources_new = total_new
         job.resources_updated = total_updated
+        job.resources_decommissioned = total_decommissioned
         log_lines.append('Refreshing account costs...')
         job.log_output = '\n'.join(log_lines)
         job.completed_at = timezone.now()

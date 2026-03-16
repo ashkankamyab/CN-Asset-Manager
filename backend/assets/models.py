@@ -182,6 +182,7 @@ class DiscoveryJob(models.Model):
     resources_discovered = models.IntegerField(default=0)
     resources_updated = models.IntegerField(default=0)
     resources_new = models.IntegerField(default=0)
+    resources_decommissioned = models.IntegerField(default=0)
     error_message = models.TextField(blank=True, default='')
     triggered_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True
